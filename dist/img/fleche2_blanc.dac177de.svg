@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="12px" height="18px" viewBox="0 0 12 18" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Path</title>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Arrow-Solid-Black" transform="translate(-32.000000, -79.000000)" fill="#FFFFFF" fill-rule="nonzero">
+            <g id="iconspace_Left_25px" transform="translate(25.000000, 75.000000)">
+                <path d="M8.95058602,12.7407869 L18.2188771,20.1646611 C18.5421662,20.4236148 18.5943205,20.8956159 18.3353668,21.218905 C18.0764131,21.5421941 17.6044121,21.5943484 17.2811229,21.3353947 L7.28112291,13.3254237 C6.90600034,13.0249516 6.90634739,12.4541362 7.28183504,12.1541204 L17.281835,4.16409142 C17.6054388,3.90553105 18.0773761,3.95825916 18.3359365,4.28186295 C18.5944969,4.60546674 18.5417687,5.07740403 18.218165,5.3359644 L8.95058602,12.7407869 Z" id="Path"></path>
+            </g>
+        </g>
+    </g>
+</svg>
