@@ -4,5 +4,5 @@ import './registerServiceWorker'
 import router from './router'
 
 let app = createApp(App)
-app.config.globalProperties.currIp = 'http://192.168.73.11:8000'
+app.config.globalProperties.currIp = 'https://ns3359877.ip-37-187-97.eu'
 app.use(router).mount('#app')
