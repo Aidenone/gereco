@@ -101,14 +101,6 @@ export default {
 			await set('VG-'+this.vg_id+'-'+occ, test.appartements[occ-1]);
 		}
 		await set('VG-'+this.vg_id, test);
-
-		result = this.inter_option;
-		console.log(result);
-		test = JSON.stringify(result);
-		console.log(test);
-		test = JSON.parse(test);
-
-		await set('test', test);
     },
     async getFormData() {
 		let i = 1;
@@ -127,6 +119,7 @@ export default {
 			this.compteurs = savedData.compteurs;
 			this.compte_rendu = savedData.compte_rendu;
 			this.temps_passe = savedData.temps_passe;
+			this.remarque = savedData.remarque;
 		}
 		this.saveFormData();
     },
@@ -138,7 +131,7 @@ export default {
 			{
 				num: Number(curr_num) + 1,
 				bat: current.bat,
-				nom: current.nom,
+				nom: '',
 				escalier: current.escalier,
 				etage: current.etage,
 				porte: '',
@@ -206,7 +199,7 @@ export default {
 		};
 		// console.log(content);
 		console.log(content);
-		axios.post("http://192.168.73.11:8000/submit_vg", content).then((response) => {
+		axios.post(this.currIp+"/submit_vg", content).then((response) => {
 			console.log(response.data);
 		});
     },
@@ -359,17 +352,17 @@ export default {
 			<div>
 				<table class="liste_vg">
 					<tr>
-						<th>Numéro</th>
+						<th>Num</th>
 						<th>Type</th>
 						<th>Date</th>
-						<th>Localisation</th>
+						<th>Loc.</th>
 						<th>Index</th>
 					</tr>
 					<tr v-for="(item, index) in compteurs" :key="index" class="vg-line">
-						<td><input style="width: 50px;" type="text" v-model="item.numero" @input="saveFormData(index)" /></td>
+						<td><input style="width: 70px;" type="text" v-model="item.numero" @input="saveFormData(index)" /></td>
 						<td><input style="width: 28px;" type="text" v-model="item.type" @input="saveFormData(index)" /></td>
-						<td><input style="width: 68px;" type="text" v-model="item.date" @input="saveFormData(index)" /></td>
-						<td><textarea style="width: 80px;" v-model="item.localisation" @input="saveFormData(index)"></textarea></td>
+						<td><input style="width: 60px;" type="text" v-model="item.date" @input="saveFormData(index)" /></td>
+						<td><textarea style="width: 40px;" v-model="item.localisation" @input="saveFormData(index)"></textarea></td>
 						<td><input style="width: 34px;" type="text" v-model="item.index" @input="saveFormData(index)" /></td>
 						<div @click="removeCompteur(index)" class="line_remover"> x </div>
 					</tr>

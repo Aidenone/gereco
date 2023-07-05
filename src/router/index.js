@@ -43,6 +43,11 @@ const routes = [
     name: 'Login',
     component: () => import('../views/LoginView.vue')
   },
+  {
+    path: '/new_dp/',
+    name: 'NewDP',
+    component: () => import('../views/NewDPView.vue')
+  }
 ]
 
 const router = createRouter({

@@ -79,7 +79,7 @@ export default {
 			axios.post(this.currIp+"/submit_dp", content).then((response) => {
 				console.log(response.data);
 			});
-			// this.$router.push('/');
+			this.$router.push('/');
 		},
 		addItem() {
 			if(this.inter[this.inter.length - 1] != undefined) {

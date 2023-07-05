@@ -1,12 +1,131 @@
+<script>
+import { set, get } from 'idb-keyval';
+
+export default {
+	name: 'VHInter',
+	data() {
+		return {
+			vh_occ: '',
+			vh_id: '',
+			inter_option: [],
+			appartements: 
+			{
+				num: '',
+				nom: '',
+				bat: '',
+				escalier: '',
+				etage: '',
+				porte: '',
+				suivi: '',
+				temps_passe: '',
+				remarque_inter: '',
+				checkbox_cloture: false,
+				checkbox_suspens: false,
+				checkbox_devis: false,
+				remarque: '',
+				inter: [
+					{
+						inter_type: '',
+						inter_lieu: '',
+						inter_presta: '',
+						inter_qty: '',
+					},
+				],
+				verif_ra: false,
+				verif_rob: false,
+				verif_wc: false,
+				verif_gen: false
+			}
+		};
+	},
+	mounted() {
+		let uri = window.location.href.split('?');
+		let vars = uri[1].split('&');
+		let getVars = {};
+		let tmp = '';
+		vars.forEach(function(v) {
+		tmp = v.split('=');
+		if(tmp.length == 2)
+			getVars[tmp[0]] = tmp[1];
+		});
+		let item_id = getVars.vhocc;
+		this.vh_occ = item_id;
+		this.vh_id = this.$route.params.id;
+		
+		this.getFormData();
+		// window.addEventListener('beforeunload', this.saveFormData);
+	},
+	beforeUnmount() {
+		// window.removeEventListener('beforeunload', this.saveFormData);
+	},
+	methods: {
+		async saveFormData() {
+			//Data from table + form
+			var result = this.$data;
+			//To avoid cloning error
+			result = JSON.stringify(result);
+			var test = JSON.parse(result);
+			await set('VH-'+this.vh_id+'-'+this.vh_occ, test.appartements);
+		},
+		async getFormData() {
+			let savedData = await get('VH-'+this.vh_id+'-'+this.vh_occ);
+			let vh_info = await get('VH-'+this.vh_id);
+			this.inter_option = vh_info.inter_option;
+			console.log(vh_info);
+			this.appartements = savedData;
+		},
+		addItem() {
+			if(this.appartements.inter[this.appartements.inter.length - 1] != undefined) {
+				var current = this.appartements.inter[this.appartements.inter.length - 1];
+				if(
+					current.inter_type != '' &&
+					current.inter_lieu != '' &&
+					current.inter_presta != '' &&
+					current.inter_qty != ''
+				) {
+					this.appartements.inter.push(
+						{
+							inter_type: '',
+							inter_lieu: '',
+							inter_presta: '',
+							inter_qty: '',
+						}
+					);
+				} else {
+					alert("Vous devez remplir l'intervention précédente avant d'en rajouter une nouvelle")
+				}
+			} else {
+				this.appartements.inter.push(
+					{
+						inter_type: '',
+						inter_lieu: '',
+						inter_presta: '',
+						inter_qty: '',
+					}
+				);
+			}
+			this.saveFormData();
+		},
+		removeItem() {
+			this.appartements.inter.pop();
+			this.saveFormData();
+		},
+		submitForm() {
+			this.getFormData();
+		},
+	},
+};
+</script>
+
 <template>
 	<form @submit.prevent="submitForm">
 		<div class="form_header">
 			<div class="header_headline">
-				<a href="/#/vh"><img class="return_button" src="../assets/fleche2_blanc.svg"></a>
+				<a v-bind:href="'/#/vh/?item_id=' + this.vh_id"><img class="return_button" src="../assets/fleche2_blanc.svg"></a>
 				<img src="../assets/logo-gereco-2.svg">
 			</div>
-			<div style="font-size: 19px; color:white; font-weight: bold;">VISITE HEBDOMADAIRE - 07/09/2023</div>
-			<div style="font-size: 14px; color:white; font-weight: bold; margin-bottom: 20px;">N°{{vg_occ}}</div>
+			<div style="font-size: 19px; color:white; font-weight: bold;">VISITE HEBDOMADAIRE</div>
+			<div style="font-size: 14px; color:white; font-weight: bold; margin-bottom: 20px;">N°{{vh_occ}}</div>
 		</div>
 
 		<table>
@@ -38,6 +157,9 @@
 
 		<input type="checkbox" name="checkbox_devis" v-model="this.appartements.verif_wc" @change="saveFormData(index)">
 		<label for="checkbox_cloture">Verification WC</label><br>
+
+		<input type="checkbox" name="checkbox_devis" v-model="this.appartements.verif_gen" @change="saveFormData(index)">
+		<label for="checkbox_cloture">Verification Générique</label><br>
 	</div>
 
 	<div class="form_bloc intervention">
@@ -63,17 +185,17 @@
 								</select>
 							</td>
 							<td>
-								<select style="width: 75px;" v-model="item['inter_type']" @change="saveFormData(index), changeFamily($event, index)">
-									<option value="ra">RA - Robinet d'arrêt</option>
-									<option value="wc">WC</option>
-									<option value="robinetterie">R - Robinetterie</option>
-									<option value="robinetterie commune">RC - Robinetterie commune</option>
+								<select style="width: 75px;" v-model="item['inter_type']" @change="saveFormData(index)">
+									<option value="1">RA - Robinet arrêt</option>
+									<option value="4">WC</option>
+									<option value="3">ROB - Robinetterie</option>
+									<option value="5">GENER - Générique</option>
 								</select>
 							</td>
 							<td>
-								<select v-model="item['inter_presta']" @change="saveFormData(index)" :disabled="item['inter_lieu'] != '' && item['inter_type'] != '' ? disabled : ''">
-									<option v-for="key in item['inter_option']" :key="key">
-										{{key}}
+								<select v-model="item['inter_presta']" @change="saveFormData(index)" :disabled="item['inter_type'] != '' ? disabled : ''">
+									<option v-for="key in inter_option['presta_fam' + item['inter_type']]"  :key="key" :value="key.id">
+										{{key.libelle}}
 									</option>
 									<option>Prestation hors-contrat</option>
 								</select>
@@ -89,7 +211,7 @@
 
 					<p>
 						<label style="font-weight: bold;">Remarque si autre Lieu ou autre Robinetterie: </label><br>
-						<textarea></textarea>
+						<textarea v-model="this.appartements.remarque_inter" @input="saveFormData(index)"></textarea>
 					</p>
 				</div>
 			</div>
@@ -115,178 +237,29 @@
 			<div>
 				<label>Temps passé (hors déplacement)* :</label>
 				<select v-model="this.appartements.temps_passe" @change="saveFormData(index)">
-					<option>15min</option>
-					<option>30min</option>
-					<option>45min</option>
-					<option>1h</option>
-					<option>1h15min</option>
-					<option>1h30min</option>
-					<option>1h45min</option>
-					<option>2h</option>
-					<option>2h15min</option>
-					<option>2h30min</option>
-					<option>2h45min</option>
-					<option>3h</option>
-					<option>3h15min</option>
-					<option>3h30min</option>
-					<option>3h45min</option>
-					<option>4h</option>
+					<option value="15">15min</option>
+					<option value="30">30min</option>
+					<option value="45">45min</option>
+					<option value="60">1h</option>
+					<option value="75">1h15min</option>
+					<option value="90">1h30min</option>
+					<option value="105">1h45min</option>
+					<option value="120">2h</option>
+					<option value="135">2h15min</option>
+					<option value="150">2h30min</option>
+					<option value="165">2h45min</option>
+					<option value="180">3h</option>
+					<option value="195">3h15min</option>
+					<option value="210">3h30min</option>
+					<option value="225">3h45min</option>
+					<option value="240">4h</option>
 				</select>
 			</div>
 		</div>
 	</div>
-	<a href="/#/idbtest" style="background: #c2bdb9; color: white; padding: 10px; border-radius: 10px;">SAUVEGARDER</a>
+	<a :href="'/#/vh/?item_id=' + this.vh_id" style="background: #c2bdb9; color: white; padding: 10px; border-radius: 10px;">SAUVEGARDER</a>
 	</form>
 </template>
-
-<script>
-import { set, get } from 'idb-keyval';
-
-export default {
-	name: 'VHInter',
-	data() {
-		return {
-			vg_occ: '',
-			vg_id: '',
-			appartements: {
-				nom: '',
-				bat: '',
-				escalier: '',
-				etage: '',
-				porte: '',
-				objet: '',
-				remarque_ra: '',
-				temps_passe: '',
-				checkbox_cloture: false,
-				checkbox_suspens: false,
-				checkbox_devis: false,
-				inter: [
-					{
-						inter_option: [],
-						inter_type: '',
-						inter_lieu: '',
-						inter_presta: '',
-						inter_qty: '',
-					},
-				],
-				verif_ra: false,
-				verif_rob: false,
-				verif_wc: false
-			},
-		};
-	},
-	mounted() {
-		let uri = window.location.href.split('?');
-		let vars = uri[1].split('&');
-		let getVars = {};
-		let tmp = '';
-		vars.forEach(function(v) {
-		tmp = v.split('=');
-		if(tmp.length == 2)
-			getVars[tmp[0]] = tmp[1];
-		});
-		let item_id = getVars.vgocc;
-		this.vg_occ = item_id;
-		this.vg_id = this.$route.params.id;
-
-		// var result = JSON.stringify(this.appartements);
-		// var test = JSON.parse(result);
-		// set('VH-xxx-1', test);
-		
-		this.getFormData();
-		window.addEventListener('beforeunload', this.saveFormData);
-	},
-  beforeUnmount() {
-    window.removeEventListener('beforeunload', this.saveFormData);
-  },
-  methods: {
-    async saveFormData() {
-		//Data from table + form
-		var result = this.$data;
-		//To avoid cloning error
-		result = JSON.stringify(result);
-		var test = JSON.parse(result);
-		console.log(test.appartements);
-		await set('VH-xxx-'+this.vg_occ, test.appartements);
-    },
-    async getFormData() {
-		let savedData = await get('VH-xxx-'+this.vg_occ);
-		this.appartements = savedData;
-    },
-	addItem() {
-		if(this.appartements.inter[this.appartements.inter.length - 1] != undefined) {
-			var current = this.appartements.inter[this.appartements.inter.length - 1];
-			if(
-				current.inter_type != '' &&
-				current.inter_lieu != '' &&
-				current.inter_presta != '' &&
-				current.inter_qty != ''
-			) {
-				this.appartements.inter.push(
-					{
-						inter_option: [],
-						inter_type: '',
-						inter_lieu: '',
-						inter_presta: '',
-						inter_qty: '',
-					}
-				);
-			} else {
-				alert("Vous devez remplir l'intervention précédente avant d'en rajouter une nouvelle")
-			}
-		} else {
-			this.appartements.inter.push(
-				{
-					inter_option: [],
-					inter_type: '',
-					inter_lieu: '',
-					inter_presta: '',
-					inter_qty: '',
-				}
-			);
-		}
-		this.saveFormData();
-    },
-    removeItem() {
-		this.appartements.inter.pop();
-		this.saveFormData();
-    },
-    changeFamily(event, index) {
-		if(event.target.value == 'wc') {
-			this.appartements.inter[index].inter_option = [
-				"MEC - Mécanisme de chasse",
-				"RF - Robinet flotteur",
-				"RAWC - Robinet d'arrêt de chasse d'eau",
-				"RES - Réservoir de chasse"
-			];
-		} else if(event.target.value == 'ra') {
-			this.appartements.inter[index].inter_option = [
-				"RAEF - Robinet d'arrêt EF",
-				"JFRAEF - Joint fibre après RA EF",
-				"CAR - Clapet antiretour",
-				"MAN - Manchette d'attente"
-			];
-		} else if(event.target.value == 'robinetterie') {
-			this.appartements.inter[index].inter_option = [
-				"MEL - Melangeur",
-				"MAL - Robinet machine à laver",
-				"FLEXD - Flexible et Douchette",
-				"CDC - Col de cygne"
-			];
-		} else if(event.target.value == 'robinetterie commune') {
-			this.appartements.inter[index].inter_option = [
-				"VPCEFP2 - Vanne PDC EF controle manipulation",
-				"VPCEFP3 - Vanne PDC EF garantie totale",
-				"ROBCOM - Robinets de puisage commun"
-			];
-		}
-    },
-    submitForm() {
-      this.getFormData();
-    },
-  },
-};
-</script>
 
 <style scoped>
 	body {

@@ -30,4 +30,28 @@ nav a.router-link-exact-active {
 
 body {
 }
+
+/* style message connexion */
+.alert {
+    padding: 10px; 
+    width: 95%;
+    box-sizing: border-box;
+    border: 1px solid black;
+    border-radius: 10px;
+    position: fixed;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+    top: 30px;
+    left: 50%;
+    transform: translate(-50%, -50%);
+} .back {
+    background-color: #82ff82;
+} .lost {
+    background-color: #ff8282;
+}
+.alert.hide {
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
 </style>

@@ -1,3 +1,171 @@
+<script>
+import { set, get, del } from 'idb-keyval';
+import axios from "axios";
+
+export default {
+  name: 'VH',
+  data() {
+    return {
+      vh_id: '',
+      resp: '',
+      remarque: '',
+      inter_option: [],
+      appartements: [
+		//ajouter tous les champs -> identiques que VGInter
+        {
+			num: '1',
+			nom: '',
+			bat: '',
+			escalier: '',
+			etage: '',
+			porte: '',
+			suivi: '',
+			temps_passe: '',
+			remarque_inter: '',
+			checkbox_cloture: false,
+			checkbox_suspens: false,
+			checkbox_devis: false,
+			remarque: '',
+			inter: [
+				{
+					inter_type: '',
+					inter_lieu: '',
+					inter_presta: '',
+					inter_qty: '',
+				},
+			],
+			verif_ra: false,
+			verif_rob: false,
+			verif_wc: false,
+			verif_gen: false
+		}
+      ],
+    };
+  },
+  mounted() {
+    let uri = window.location.href.split('?');
+	let vars = uri[1].split('&');
+	let getVars = {};
+	let tmp = '';
+	vars.forEach(function(v) {
+	tmp = v.split('=');
+	if(tmp.length == 2)
+		getVars[tmp[0]] = tmp[1];
+	});
+	let item_id = getVars['item_id'];
+	this.vh_id = item_id;
+    axios.get(this.currIp+'/mission_vh?item_id='+item_id).then((response) => {
+		this.resp = response.data;
+		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code).then((response) => {
+			this.inter_option = response.data;
+			console.log(this.inter_option);
+			this.getFormData();
+		});
+	});
+    // window.addEventListener('beforeunload', this.saveFormData);
+  },
+  beforeUnmount() {
+    // window.removeEventListener('beforeunload', this.saveFormData);
+  },
+  methods: {
+	async saveFormData(occ) {
+		occ = occ+1;
+		//Data from table + form
+		var result = this.$data;
+		var test = JSON.stringify(result);
+		test = JSON.parse(test);
+		if (isNaN(occ)) {
+			let i = 1;
+			while(await get('VH-'+this.vh_id+'-'+i)) {
+				await del('VH-'+this.vh_id+'-'+i);
+				i = i + 1;
+			}
+			i = 1;
+			while(test.appartements[i-1]) {
+				await set('VH-'+this.vh_id+'-'+i, test.appartements[i-1]);
+				i = i + 1;
+			}
+		} else {
+			await set('VH-'+this.vh_id+'-'+occ, test.appartements[occ-1]);
+		}
+		await set('VH-'+this.vh_id, test);
+    },
+	async getFormData() {
+		let i = 1;
+		let data = [];
+		if(await get('VH-'+this.vh_id+'-'+i) !== undefined) {
+			while(await get('VH-'+this.vh_id+'-'+i) !== undefined) {
+				let savedData = await get('VH-'+this.vh_id+'-'+i);
+				data[i-1] = savedData;
+				i = i + 1;
+			}
+			this.appartements = data;
+		}
+
+		if(await get('VH-'+this.vh_id) !== undefined) {
+			let savedData = await get('VH-'+this.vh_id);
+			this.remarque = savedData.remarque;
+		}
+		this.saveFormData();
+    },
+    removeLine(index) {
+		if(confirm("Voulez-vous supprimer cette ligne ?")){
+			this.appartements.splice(index, 1);
+			this.saveFormData();
+		}
+	},
+    addItemAppartements() {
+		var current = this.appartements[this.appartements.length - 1];
+		var curr_num = current.num;
+
+		this.appartements.push( 
+		{
+			num: Number(curr_num) + 1,
+			bat: '',
+			escalier: '',
+			etage: '',
+			porte: '',
+			suivi: '',
+			temps_passe: '',
+			remarque_inter: '',
+			checkbox_cloture: false,
+			checkbox_suspens: false,
+			checkbox_devis: false,
+			remarque: '',
+			inter: [
+				{
+					inter_type: '',
+					inter_lieu: '',
+					inter_presta: '',
+					inter_qty: '',
+				},
+			],
+			verif_ra: false,
+			verif_rob: false,
+			verif_wc: false,
+			verif_gen: false
+		}
+		);
+		this.saveFormData();
+    },
+	submitForm() {
+		const content = {
+			appartements: this.appartements,
+			vh_id: this.vh_id,
+			ctr_code: this.resp.Ctr_code,
+			ctr_nature: this.resp.Ctr_nature,
+			remarque: this.remarque
+		};
+		console.log(content);
+		axios.post(this.currIp+'/submit_vh', content).then((response) => {
+			console.log(response.data);
+		});
+		this.$router.push('/');
+    },
+  },
+};
+</script>
+
 <template>
   <form @submit.prevent="submitForm">
 	<div class="form_header">
@@ -6,7 +174,7 @@
 			<img src="../assets/logo-gereco-2.svg">
 		</div>
 		<div style="font-size: 19px; color:white; font-weight: bold;">VISITE HEBDOMADAIRE</div>
-		<div style="font-size: 14px;color:white; font-weight: bold; margin-bottom: 20px;">07/09/2023</div>
+		<div style="font-size: 14px;color:white; font-weight: bold; margin-bottom: 20px;">{{ resp.Evt_dtDebut }}</div>
 		<div class="form_bloc">
 			<div class="form_bloc_title">Contrat</div>
 			<div class="form_bloc_content">
@@ -15,9 +183,8 @@
 					<div>14/0712</div>
 				</div>
 				<div class="col">
-					4/6/8 Emile Dubois
-					<br>12 Dareau
-					<br>75014 Paris
+					{{ resp.Imm_1_adr }}<br>
+					{{ resp.Imm_2_adr }}
 				</div>
 			</div>
 			<div class="form_bloc_content table_container">
@@ -31,10 +198,10 @@
 							
 						</tr>
 						<tr>
-							<td>200</td>
-							<td>8</td>
-							<td>2</td>
-							<td>Exclus</td>
+							<td>{{ resp.Imm_nbLog }}</td>
+							<td>{{ Imm_nbCham }}</td>
+							<td>{{ Imm_nbWC }}</td>
+							<td>{{ resp.nbLocComm }}</td>
 						</tr>
 					</table>
 				</div>
@@ -50,13 +217,10 @@
 							<th>Horaire</th>
 						</tr>
 						<tr>
-							<td>Mr Jean</td>
-							<td>
-								12 rue Jean Jaures
-								<br>5014 Paris
-							</td>
-							<td></td>
-							<td></td>
+							<td>{{resp.gardien_nom}}</td>
+							<td>{{resp.gardien_adresse}}</td>
+							<td>{{resp.gardien_code}}</td>
+							<td>{{resp.gardien_HeuresLoge}}</td>
 						</tr>
 					</table>
 					<table>
@@ -65,8 +229,8 @@
 							<th>Portable</th>
 						</tr>
 						<tr>
-							<td>01.17.18.82.19</td>
-							<td>06.11.78.55.23</td>
+							<td>{{resp.gardien_telephone}}</td>
+							<td>{{resp.gardien_mobile}}</td>
 						</tr>
 					</table>
 				</div>
@@ -79,8 +243,8 @@
 								<th>Fixe</th>
 							</tr>
 							<tr>
-								<td>Mr Jean</td>
-								<td>01.14.75.29.49</td>
+								<td>{{resp.client_raisonSoc}}</td>
+								<td>{{resp.client_tel1}}</td>
 							</tr>
 						</table>
 					</div>
@@ -88,7 +252,13 @@
 				<div class="form_bloc_content table_container">
 					<div class="form_bloc_title">Observations GERECO</div>
 					<div class="form_bloc_content">
-						<textarea disabled style="height: 70px;">Le 28/01 Bat A - Le 29/01 Bat B du 12e au 6e - Le 30/01 Bat B du 5e au rdc - le 3/02 B et C </textarea>
+						<textarea disabled v-model="resp.VG_remarqueTech" @input="saveFormData(index)" style="height: 70px;"></textarea>
+					</div>
+				</div>
+				<div class="form_bloc">
+					<div class="form_bloc_title">Remarques (informations à modifier)</div>
+					<div class="form_bloc_content">
+						<textarea v-model="this.remarque" @input="saveFormData(index)"></textarea>
 					</div>
 				</div>
 			</div>
@@ -115,7 +285,8 @@
 						<td><input style="width: 15px;" type="text" v-model="item.etage" @input="saveFormData(index)" /></td>
 						<td><input style="width: 15px;" type="text" v-model="item.porte" @input="saveFormData(index)" /></td>
 						<td><input style="width: 40px;" type="text" v-model="item.objet" @input="saveFormData(index)" /></td>
-						<td style="text-align: center;" ><router-link v-bind:to="{ name: 'VHInter', params: { id: '0001'}, query: {vgocc: index+1}}">--></router-link></td>
+						<td style="text-align: center;" ><router-link v-if="this.vh_id" :to="{ name: 'VHInter', params: { id: vh_id }, query: {vhocc: index+1}}">--></router-link></td>
+						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
 				<button @click="addItemAppartements">+</button>
@@ -123,145 +294,36 @@
 		</div>
 	</div>
 
-	<a href="/" style="background: #c2bdb9;
+	<input style="background: #c2bdb9;
 		width: 70%;
 		border: 1px solid black;
 		margin-bottom: 20px;
 		height: 25px;
-		padding: 7px;
-		color: black;">CLÔTURER LA VISITE HEBDOMADAIRE</a>
+		color: black;" class="input_button" type="submit" value="TERMINER L'INTERVENTION">
   </form>
 </template>
 
-<script>
-import { set, get } from 'idb-keyval';
-
-export default {
-  name: 'VH',
-  data() {
-    return {
-      appartements: [
-		//ajouter tous les champs -> identiques que VGInter
-        {
-			num: '1',
-			bat: '',
-			escalier: '',
-			etage: '',
-			porte: '',
-			suivi: '',
-			remarque_inter: '',
-			checkbox_cloture: false,
-			checkbox_suspens: false,
-			checkbox_devis: false,
-			remarque: '',
-			inter: [
-				{
-					inter_type: '',
-					inter_lieu: '',
-					inter_presta: '',
-					inter_qty: '',
-				},
-			],
-			verif_ra: false,
-			verif_rob: false,
-			verif_wc: false
-		}
-      ],
-    };
-  },
-  mounted() {
-    this.getFormData();
-    // window.addEventListener('beforeunload', this.saveFormData);
-  },
-  beforeUnmount() {
-    // window.removeEventListener('beforeunload', this.saveFormData);
-  },
-  methods: {
-    async saveFormData(occ) {
-		occ = occ+1;
-		//Data from table + form
-		var result = this.$data;
-		//To avoid cloning error
-		result = JSON.stringify(result);
-		var test = JSON.parse(result);
-		console.log("occ : "+occ);
-		if (isNaN(occ)) {
-			let i = 1;
-			while(test.appartements[i-1]) {
-				await set('VH-xxx-'+i, test.appartements[i-1]);
-				console.log("test");
-				i = i + 1;
-			}
-		} else {
-			await set('VH-xxx-'+occ, test.appartements[occ-1]);
-		}
-    },
-    async getFormData() {
-		let i = 1;
-		let data = [];
-		if(await get('VH-xxx-'+i) !== undefined) {
-			while(await get('VH-xxx-'+i) !== undefined) {
-				let savedData = await get('VH-xxx-'+i);
-				data[i-1] = savedData;
-				i = i + 1;
-			}
-			this.appartements = data;
-		}
-    },
-    addItemAppartements() {
-		//mettre type en arg
-		// this['inter_'+type].push({ name: "", email: ""});
-		this.appartements.push( 
-		{
-			num: '1',
-			bat: '',
-			escalier: '',
-			etage: '',
-			porte: '',
-			suivi: '',
-			remarque_inter: '',
-			checkbox_cloture: false,
-			checkbox_suspens: false,
-			checkbox_devis: false,
-			remarque: '',
-			inter: [
-				{
-					inter_type: '',
-					inter_lieu: '',
-					inter_presta: '',
-					inter_qty: '',
-				},
-			],
-			verif_ra: false,
-			verif_rob: false,
-			verif_wc: false
-		}
-		);
-		this.saveFormData();
-    },
-	submitForm() {
-		// const content = {
-		// 	appartements: this.appartements
-		// 	//id de la vh
-		// };
-		// console.log(content);
-		// axios.post("http://192.168.1.143:8000/submit_vh", content).then((response) => {
-		// 	console.log(response.data);
-		// });
-    },
-  },
-};
-</script>
-
 <style scoped>
+
+	.green input, .green select {
+		color: green;
+	}
+	.invis {
+		display: none;
+	}
+
+	input, select {
+		/*border: none;*/
+	}
+
 	body {
 		padding: 0 !important;
 		margin: 0 !important;
 		font-size: 15px;
 		color: black;
 	}	
-	.form_header {
-		background: #c2bdb9;
+	.form_header { 
+		background: #c2bdb9;;
 		width: 100%;
 		padding-bottom: 15px;
 		border-bottom-left-radius: 25px;
@@ -377,7 +439,40 @@ export default {
 		height: 25px;
 	}
 	.liste_vg th {
-		width: 10px;
+		width: 25%;
+	}
+	.line_remover {
+		color: red;
+		border: none;
+		width: 0px;
+		text-align: center;
+		margin: auto;
+		padding-top: 6px;
+		margin-left: 5px;
+		cursor: pointer;
+	} .line_remover:hover {
+		color: #ff0000b8;
+	}
+	.line_adder {
+		border: 1px solid black;
+		border-radius: 3px;
+		background: #8080802e;
+		width: 20px;
+		height: auto;
+		text-align: center;
+		cursor: pointer;
+	} .line_adder:hover {
+		background: #8080804d;
+	}
+	.filter_button {
+		border: 1px solid black;
+		width: 55px;
+		text-align: center;
+		font-weight: 400;
+		font-size: 14px;
+		display: inline-block;
+		background: #e8e8e8;
+		margin-left: 4px;
 	}
 	table, td, th {
 		border: 1px solid black;
@@ -387,6 +482,7 @@ export default {
 	table {
 		width: 100%;
 		border-collapse: collapse;
+		border: none;
 		margin-bottom: 10px;
 	}
 	td, th {
