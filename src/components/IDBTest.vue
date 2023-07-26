@@ -91,6 +91,14 @@ export default {
     window.removeEventListener('beforeunload', this.saveFormData);
   },
   methods: {
+	undo() {
+			this.$refs.signaturePad.undoSignature();
+		},
+	save() {
+		const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
+		console.log(isEmpty);
+		console.log(data);
+	},
     async saveFormData(occ) {
 		occ = occ+1;
 		//Data from table + form
@@ -409,11 +417,15 @@ export default {
 				<option value="14">14 jours</option>
 			</select>
 		</div>
-		<p>
-			<label style="font-weight: bold;">Visa Gardien ou Représentant</label>
-			<input style='display: none;' type="text" name="">
-		</p>
-		<div style="position: relative; top: -10px; border: 1px solid black; width: 80px; text-align: center; margin: auto; padding: 4px;">Signature</div>
+		
+		<label style="font-weight: bold;">Visa Gardien ou Représentant</label>
+		<div>
+			<VueSignaturePad class="signaturePad" ref="signaturePad" />
+			<div>
+				<button @click="undo">Effacer</button>
+			</div>
+		</div>
+
 	</div>
     
     <input class="input_button" type="submit" value="TERMINER L'INTERVENTION">
@@ -438,7 +450,10 @@ export default {
 		margin: 0 !important;
 		font-size: 15px;
 		color: black;
-	}	
+	}
+	.signaturePad {
+		border: 1px solid black;
+	}
 	.form_header {
 		background: #81c0cc;
 		width: 100%;
