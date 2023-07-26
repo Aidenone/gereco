@@ -252,7 +252,7 @@ export default {
 				<div class="form_bloc_content table_container">
 					<div class="form_bloc_title">Observations GERECO</div>
 					<div class="form_bloc_content">
-						<textarea disabled v-model="resp.VG_remarqueTech" @input="saveFormData(index)" style="height: 70px;"></textarea>
+						<textarea disabled v-model="resp.VH_remarqueTech" @input="saveFormData(index)" style="height: 70px;"></textarea>
 					</div>
 				</div>
 				<div class="form_bloc">

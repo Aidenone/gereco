@@ -15,13 +15,6 @@ export default {
       temps_passe: '',
       inter_option: [],
       compteurs: [
-        {
-			numero: '',
-			type: '',
-			date: '',
-			localisation: '',
-			index: '',
-        }
       ],
       appartements: [
 		//ajouter tous les champs -> identiques que VGInter
@@ -60,17 +53,35 @@ export default {
 	let getVars = {};
 	let tmp = '';
 	vars.forEach(function(v) {
-	tmp = v.split('=');
-	if(tmp.length == 2)
-		getVars[tmp[0]] = tmp[1];
+		tmp = v.split('=');
+		if(tmp.length == 2)
+			getVars[tmp[0]] = tmp[1];
 	});
 	let item_id = getVars['item_id'];
 	this.vg_id = item_id;
-    axios.get(this.currIp+'/mission_vg?item_id='+item_id).then((response) => {
+    axios.get(this.currIp+'/mission_vg?item_id='+item_id)
+    .then((response) => {
 		this.resp = response.data;
-		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code).then((response) => {
+		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code)
+		.then((response) => {
 			this.inter_option = response.data;
-			console.log(this.inter_option);
+			this.getFormData();
+		});
+		axios.get(this.currIp+'/get_compteurs?ctr_id='+this.resp.Ctr_code)
+		.then((response) => {
+			console.log(response.data);
+			for (let compteur of response.data) {
+				this.compteurs.push(
+					{
+						numero: compteur.Cpt_numero,
+						type: compteur.Cpt_nature,
+						date: '',
+						index: '',
+						localisation: compteur.Cpt_localisation,
+						new: false
+					}
+				);
+			}
 			this.getFormData();
 		});
 	});
@@ -165,7 +176,9 @@ export default {
 				numero: '',
 				type: '',
 				date: '',
-				index: ''
+				index: '',
+				localisation: '',
+				new: true
 			}
 		);
 		this.saveFormData();

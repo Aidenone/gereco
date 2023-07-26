@@ -37,7 +37,15 @@ export default {
 	beforeUnmount() {
 		// window.removeEventListener('beforeunload', this.saveFormData);
 	},
-    methods: {
+	methods: {
+		undo() {
+			this.$refs.signaturePad.undoSignature();
+		},
+		save() {
+			const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
+			console.log(isEmpty);
+			console.log(data);
+		},
 		getFormValues() {
 			const content = {
 								DP_remarqueContractuelle: this.DP_remarqueContractuelle,
@@ -272,7 +280,17 @@ export default {
 					</select>
 				</div>
 				<div>
+					<label>Photo :</label><br>
 					<input type="file" id="image_upload" name="image" @change="handleFiles" accept="image/png, image/jpeg">
+				</div>
+				<div>
+					<label>Signature :</label>
+					<VueSignaturePad class="signaturePad" ref="signaturePad" />
+					<div>
+						<!-- Need to save on submit / save button is useless -->
+						<!-- <button @click="save">Sauvegarder</button> -->
+						<button @click="undo">Effacer</button>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -288,6 +306,9 @@ export default {
 		font-size: 15px;
 		color: black;
 	}	
+	.signaturePad {
+		border: 1px solid black;
+	}
 	.form_header {
 		background: #f69159;
 		width: 100%;

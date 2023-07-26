@@ -6,46 +6,11 @@ export default {
     name: 'HelloWorld',
     data() {
         return {
-            showConnLost: false,
-            showConnBack: false,
-            alertMessage: '',
-            onLine: navigator.onLine,
-            showBackOnline: false,
             resp: '',
             currIp: this.currIp
         };
     },
     methods: {
-        updateOnlineStatus() {
-            this.onLine = navigator.onLine;
-            if (!this.onLine) {
-                this.showTemporaryAlert('Connexion Internet perdue !', 'lost');
-            }
-        },
-        showTemporaryAlert(message, status) {
-            this.alertMessage = message;
-            if(status == 'lost') {
-                this.showConnLost = true;
-            }
-            if(status == 'back') {
-                this.showConnBack = true;
-                this.showConnLost = false;
-                setTimeout(() => {
-                    this.showConnBack = false;
-                }, 3000);
-            }
-        }
-    },
-    watch: {
-        onLine(v) {
-            if (v) {
-                this.showBackOnline = true;
-                setTimeout(() => {
-                    this.showBackOnline = false;
-                    this.showTemporaryAlert('Connexion Internet rétablie !', 'back');
-                }, 1000);
-            }
-        }
     },
     async mounted () {
         let current_tech = await get('current_tech');
@@ -54,28 +19,22 @@ export default {
         } else {
             axios.get(this.currIp+'/my_missions?tech_id='+current_tech).then((response) => {
                 this.resp = response.data;
+                //ajouter les missions dans le cache
+                    //mettre la date de création dans le cache pour la suppression
+                    //Changer les trucs de base si l'inter existe deja
+                        // trucs de base : date todo / reference si existe / adresse
                 console.log(this.resp);
             });
         }
-
-        window.addEventListener('online', this.updateOnlineStatus);
-        window.addEventListener('offline', this.updateOnlineStatus);
     },
-    beforeUnmount() {
-        window.removeEventListener('online', this.updateOnlineStatus);
-        window.removeEventListener('offline', this.updateOnlineStatus);
-    }
 };
 
 </script>
 
 <template>
 
-<div v-bind:class = "showConnLost ? '':'hide'" class="alert lost">{{ alertMessage }}</div>
-<div v-bind:class = "showConnBack ? '':'hide'" class="alert back">{{ alertMessage }}</div>
-
 <img src="../assets/logo-gereco.svg" style="width: 60px; float: left; margin: 10px;">
-<div style='float: right; position: relative; margin-right: 7px; top: 23px; border: 1px solid black; padding: 4px; font-size: 13px;'><a href="/#/new_dp">+ un dépannage</a></div>
+<div style='float: right; color: black; position: relative; margin-right: 7px; top: 23px; border: 1px solid black; padding: 4px; font-size: 13px;'><a href="/#/new_dp" style="color: black;">+ un dépannage</a></div>
   <div class="hello">
     <div class="color-legend">
         <div style="background: #82C0CC;">Visite Générale</div>
