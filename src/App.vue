@@ -100,7 +100,7 @@ body {
     position: fixed;
     z-index: 9999;
     opacity: 1;
-    transition: opacity 0.3s ease-in-out;
+    /*transition: opacity 0.3s ease-in-out;*/
     top: 30px;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -110,7 +110,7 @@ body {
     background-color: #ff8282;
 }
 .alert.hide {
-  opacity: 0;
-  transition: opacity 0.3s ease-in-out;
+  display: none;
+  /*transition: opacity 0.3s ease-in-out;*/
 }
 </style>

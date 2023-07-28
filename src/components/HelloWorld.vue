@@ -1,6 +1,6 @@
 <script>
 import axios from "axios"
-import { get } from 'idb-keyval';
+import { get, clear } from 'idb-keyval';
 
 export default {
     name: 'HelloWorld',
@@ -11,6 +11,12 @@ export default {
         };
     },
     methods: {
+        logout() {
+            if(confirm("Êtes-vous sûr de vouloir vous déconnecter ? Vous perdrez votre avancement sur les tâches en cours.")){
+                clear();
+                this.$router.push('/login/');
+            }
+        }
     },
     async mounted () {
         let current_tech = await get('current_tech');
@@ -34,6 +40,7 @@ export default {
 <template>
 
 <img src="../assets/logo-gereco.svg" style="width: 60px; float: left; margin: 10px;">
+<div style="display: contents;" @click="logout()"><img src="../assets/logout.png" class="logout-button"></div>
 <div style='float: right; color: black; position: relative; margin-right: 7px; top: 23px; border: 1px solid black; padding: 4px; font-size: 13px;'><a href="/#/new_dp" style="color: black;">+ un dépannage</a></div>
   <div class="hello">
     <div class="color-legend">
@@ -86,6 +93,12 @@ export default {
 <style>
     .home {
         margin-top: 0px !important;
+    }
+    .logout-button {
+        width: 20px;
+        position: relative;
+        top: 27px;
+        left: 103px;
     }
     .color-legend {
         display: flex;
