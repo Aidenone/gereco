@@ -98,7 +98,7 @@ export default {
         width: 20px;
         position: relative;
         top: 27px;
-        left: 103px;
+        left: 55px;
     }
     .color-legend {
         display: flex;
