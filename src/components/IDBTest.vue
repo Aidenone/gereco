@@ -19,15 +19,15 @@ export default {
       appartements: [
 		//ajouter tous les champs -> identiques que VGInter
         {
-			num: '1',
-			nom: '',
+			num: '',
 			bat: '',
+			nom: '',
 			escalier: '',
 			etage: '',
 			porte: '',
 			suivi: '',
 			remarque_inter: '',
-			statut: '',
+			statut: 'Clôturé',
 			checkbox_devis: false,
 			remarque: '',
 			inter: [
@@ -84,10 +84,10 @@ export default {
 			this.getFormData();
 		});
 	});
-    window.addEventListener('beforeunload', this.saveFormData);
+    // window.addEventListener('beforeunload', this.saveFormData);
   },
   beforeUnmount() {
-    window.removeEventListener('beforeunload', this.saveFormData);
+    // window.removeEventListener('beforeunload', this.saveFormData);
   },
   methods: {
 	undo() {
@@ -221,7 +221,7 @@ export default {
 		axios.post(this.currIp+"/submit_vg", content).then((response) => {
 			console.log(response.data);
 		});
-		this.$router.push('/');
+		// this.$router.push('/');
     },
   },
 };

@@ -18,7 +18,7 @@
 					porte: '',
 					suivi: '',
 					remarque_inter: '',
-					statut: '',
+					statut: 'Clôturé',
 					checkbox_devis: false,
 					remarque: '',
 					inter: [

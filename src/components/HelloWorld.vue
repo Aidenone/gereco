@@ -132,12 +132,17 @@ export default {
         </div>
     </li>
   </div>
+  <div class="version">v1.1.3</div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
     .home {
         margin-top: 0px !important;
+    }
+    .version {
+        margin-top: 15px;
+        font-size: 12px;
     }
     .logout-button {
         width: 20px;
