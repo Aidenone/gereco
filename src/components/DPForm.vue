@@ -22,7 +22,7 @@ export default {
 					inter_type: '',
 					inter_lieu: '',
 					inter_presta: '',
-					inter_qty: ''
+					inter_qty: '1'
 				},
 			],
 			occupant: {},
@@ -53,11 +53,11 @@ export default {
 			this.occupant = response.data;
 		});
 		this.getFormData();
-		// window.addEventListener('beforeunload', this.saveFormData);
+		window.addEventListener('beforeunload', this.saveFormData);
     },
 
 	beforeUnmount() {
-		// window.removeEventListener('beforeunload', this.saveFormData);
+		window.removeEventListener('beforeunload', this.saveFormData);
 	},
     methods: {
 		getFormValues() {
@@ -95,7 +95,7 @@ export default {
 							inter_type: '',
 							inter_lieu: '',
 							inter_presta: '',
-							inter_qty: '',
+							inter_qty: '1',
 						}
 					);
 				} else {
@@ -107,7 +107,7 @@ export default {
 						inter_type: '',
 						inter_lieu: '',
 						inter_presta: '',
-						inter_qty: '',
+						inter_qty: '1',
 					}
 				);
 			}
@@ -215,7 +215,7 @@ export default {
 						</table>
 						<table>
 							<tr>
-								<th>Adresse</th>
+								<th>Complément adresse</th>
 								<th>Fixe</th>
 								<th>Bureau</th>
 								<th>Portable</th>
@@ -291,6 +291,20 @@ export default {
 					<textarea v-model="DP_remarqueContractuelle" @input="saveFormData(index)"></textarea>
 				</div>
 			</div>
+
+			<div class="form_bloc">
+				<div class="form_bloc_title">Objet de l'intervention</div>
+				<div class="form_bloc_content">
+					<div>{{ resp.objet_tvx }}</div>
+				</div>
+			</div>
+
+			<div class="form_bloc">
+				<div class="form_bloc_title">Remarque préliminaire</div>
+				<div class="form_bloc_content">
+					<div>{{ resp.remarque_preliminaire }}</div>
+				</div>
+			</div>
 		</div>
 
 		<div class="form_bloc intervention">
@@ -356,7 +370,7 @@ export default {
 			<div class="form_bloc_content">
 				<div id="intervention">
 					<label>Accès porte</label>
-					<select v-model="this.acces_porte" @change="saveFormData(index)">
+					<select v-model="this.acces_porte" @change="saveFormData(index)" required>
 						<option>Occupant</option>
 						<option>Gardien</option>
 						<option>Clé</option>
@@ -371,7 +385,7 @@ export default {
 				</div>
 				<div id="intervention">
 					<label>Statut intervention :</label>
-					<select v-model="this.statut" @change="saveFormData(index)">
+					<select v-model="this.statut" @change="saveFormData(index)" required>
 						<option>Clôturé</option>
 						<option>En suspens</option>
 					</select>
@@ -381,8 +395,8 @@ export default {
 					<label for="checkbox_devis">Devis à faire</label><br>
 				</div>
 				<div>
-					<label>Temps passé (hors déplacement)* :</label>
-					<select v-model="this.temps_passe" @change="saveFormData(index)">
+					<label>Temps passé (hors déplacement) :</label>
+					<select v-model="this.temps_passe" @change="saveFormData(index)" required>
 						<option value="15">15min</option>
 						<option value="30">30min</option>
 						<option value="45">45min</option>

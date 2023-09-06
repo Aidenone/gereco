@@ -1,12 +1,13 @@
 <script>
 import axios from "axios"
-import { get, clear } from 'idb-keyval';
+import { get, clear, set, del, keys, entries } from 'idb-keyval';
 
 export default {
     name: 'HelloWorld',
     data() {
         return {
             resp: '',
+            data_tasks : '',
             currIp: this.currIp
         };
     },
@@ -23,14 +24,54 @@ export default {
         if (typeof current_tech == 'undefined') {
             this.$router.push('/login/');
         } else {
-            axios.get(this.currIp+'/my_missions?tech_id='+current_tech).then((response) => {
-                this.resp = response.data;
-                //ajouter les missions dans le cache
-                    //mettre la date de création dans le cache pour la suppression
-                    //Changer les trucs de base si l'inter existe deja
-                        // trucs de base : date todo / reference si existe / adresse
-                console.log(this.resp);
-            });
+            const sendGetRequest = async () => {
+                try {
+                    const response = await axios.get(this.currIp+'/my_missions?tech_id='+current_tech);
+                    this.resp = response.data;
+
+                    //del old tasks
+                    const ks = await keys();
+                    for (const k of ks) {
+                        if (k.toString().includes("-task")) {
+                            del(k);
+                        }
+                    }
+
+                    console.log(this.resp);
+
+                    this.resp.forEach(async function(element) {
+                        var id = element.Item_id;
+                        var type = element.Item_type;
+                        element = JSON.stringify(element);
+                        var data = JSON.parse(element);
+
+                        //set new tasks
+                        await set(type+'-'+id+'-task', data);
+                    });
+                } catch (err) {
+                    console.error(err);
+                }
+            };
+            await sendGetRequest();
+
+            //get tasks from cache
+            var data_tasks = [];
+            var cache_entries = await entries();
+            for (var i = 0; i <= cache_entries.length - 1; i++) {
+                if (cache_entries[i][0].toString().includes("-task")) {
+
+                    //add formated_date
+                    var dateParts = cache_entries[i][1]["Evt_dtDebut"].split(" ");
+                    dateParts = dateParts[1].split("/");
+                    var dateObject = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0]);
+                    cache_entries[i][1]["unix_date"] = Date.parse(dateObject);
+                    data_tasks.push(cache_entries[i][1]);
+                }
+            }
+            
+            console.log(data_tasks);
+            data_tasks.sort(function(a,b){return b["unix_date"] - a["unix_date"]});
+            this.data_tasks = data_tasks;
         }
     },
 };
@@ -48,7 +89,7 @@ export default {
         <div style="background: #f69159;">Dépannage</div>
         <div style="background: #f6b553;">Visite Hebdo</div>
     </div>
-    <li v-for="(item, index) in resp" v-bind:key="index">
+    <li v-for="(item, index) in data_tasks" v-bind:key="index">
         <div class="planning_elem dp_elem" v-if="item.Item_type === 'DP'">
             <div>
                 <div id="planning_date">{{ item.Evt_dtDebut }}</div>

@@ -27,8 +27,7 @@ export default {
 			porte: '',
 			suivi: '',
 			remarque_inter: '',
-			checkbox_cloture: false,
-			checkbox_suspens: false,
+			statut: '',
 			checkbox_devis: false,
 			remarque: '',
 			inter: [
@@ -36,7 +35,7 @@ export default {
 					inter_type: '',
 					inter_lieu: '',
 					inter_presta: '',
-					inter_qty: '',
+					inter_qty: '1',
 				},
 			],
 			verif_ra: false,
@@ -135,7 +134,6 @@ export default {
 
 		if(await get('VG-'+this.vg_id) !== undefined) {
 			let savedData = await get('VG-'+this.vg_id);
-			this.compteurs = savedData.compteurs;
 			this.compte_rendu = savedData.compte_rendu;
 			this.temps_passe = savedData.temps_passe;
 			this.remarque = savedData.remarque;
@@ -165,7 +163,7 @@ export default {
 						inter_type: '',
 						inter_lieu: '',
 						inter_presta: '',
-						inter_qty: '',
+						inter_qty: '1',
 					},
 				],
 				verif_ra: false,
@@ -223,6 +221,7 @@ export default {
 		axios.post(this.currIp+"/submit_vg", content).then((response) => {
 			console.log(response.data);
 		});
+		this.$router.push('/');
     },
   },
 };
@@ -261,9 +260,9 @@ export default {
 						</tr>
 						<tr>
 							<td>{{ resp.Imm_nbLog }}</td>
-							<td>{{ Imm_nbCham }}</td>
-							<td>{{ Imm_nbWC }}</td>
-							<td>{{ resp.nbLocComm }}</td>
+							<td>{{ resp.Imm_nbCham }}</td>
+							<td>{{ resp.Imm_nbWC }}</td>
+							<td>{{ resp.Imm_nbLocComm }}</td>
 						</tr>
 					</table>
 				</div>

@@ -20,7 +20,6 @@ export default {
 								login: this.nom,
 								password: this.password,
 							};
-			console.log(content);
 			axios.post(this.currIp+"/login", content).then((response) => {
 				if (typeof response.data['Tech_id'] !== 'undefined') {
 					set('current_tech', response.data['Tech_id']);

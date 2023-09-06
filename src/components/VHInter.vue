@@ -19,8 +19,7 @@ export default {
 				suivi: '',
 				temps_passe: '',
 				remarque_inter: '',
-				checkbox_cloture: false,
-				checkbox_suspens: false,
+				statut: '',
 				checkbox_devis: false,
 				remarque: '',
 				inter: [
@@ -28,7 +27,7 @@ export default {
 						inter_type: '',
 						inter_lieu: '',
 						inter_presta: '',
-						inter_qty: '',
+						inter_qty: '1',
 					},
 				],
 				verif_ra: false,
@@ -88,7 +87,7 @@ export default {
 							inter_type: '',
 							inter_lieu: '',
 							inter_presta: '',
-							inter_qty: '',
+							inter_qty: '1',
 						}
 					);
 				} else {
@@ -100,7 +99,7 @@ export default {
 						inter_type: '',
 						inter_lieu: '',
 						inter_presta: '',
-						inter_qty: '',
+						inter_qty: '1',
 					}
 				);
 			}
@@ -221,11 +220,11 @@ export default {
 		<div class="form_bloc_title">Compte rendu / Commentaires :</div>
 		<div class="form_bloc_content">
 			<div class="checkbox_list">
-				<input type="checkbox" name="checkbox_cloture" v-model="this.appartements.checkbox_cloture" @change="saveFormData(index)">
-				<label for="checkbox_cloture">Clôturé</label>
-
-				<input type="checkbox" name="checkbox_suspens" v-model="this.appartements.checkbox_suspens" @change="saveFormData(index)">
-				<label for="checkbox_cloture">Suspens</label>
+				<label>Statut intervention :</label>
+				<select class="select-status" v-model="this.appartements.statut" @change="saveFormData(index)" required>
+					<option>Clôturé</option>
+					<option>En suspens</option>
+				</select>
 
 				<input type="checkbox" name="checkbox_devis" v-model="this.appartements.checkbox_devis" @change="saveFormData(index)">
 				<label for="checkbox_cloture">HC-Devis à faire</label>
@@ -329,6 +328,9 @@ export default {
     } .form_bloc_content > div{
 		margin-bottom: 10px;
     }
+    .select-status {
+		margin-bottom: 20px;
+	}
     .col {
 		text-align: left;
 		width: 50%;

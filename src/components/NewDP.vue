@@ -155,10 +155,6 @@ export default {
 								<td><input type="text" v-model="occupant.DPOC_codeAcces"></td>
 							</tr>
 						</table>
-						<input type="checkbox" :checked="occupant.DPOC_blnPresent == 1" name="blnPresent" disabled>
-						<label for="blnPresent">Présent</label>
-						<input type="checkbox" :checked="occupant.DPOC_blnCleLoge == 1" name="cleLoge" disabled>
-						<label for="cleLoge">Clé loge</label>
 					</div>
 				</div>
 			</div>
