@@ -17,6 +17,9 @@ export default {
                 clear();
                 this.$router.push('/login/');
             }
+        },
+        reloadPage() {
+            window.location.reload();
         }
     },
     async mounted () {
@@ -70,7 +73,7 @@ export default {
             }
             
             console.log(data_tasks);
-            data_tasks.sort(function(a,b){return b["unix_date"] - a["unix_date"]});
+            data_tasks.sort(function(a,b){return a["unix_date"] - b["unix_date"]});
             this.data_tasks = data_tasks;
         }
     },
@@ -80,7 +83,8 @@ export default {
 
 <template>
 
-<img src="../assets/logo-gereco.svg" style="width: 60px; float: left; margin: 10px;">
+<img src="../assets/logo-gereco.svg" style="width: 60px; float: left; margin: 10px;" @click="reloadPage">
+<div style="display: contents;" @click="reloadPage"><img src="../assets/reload.png" class="reload-button"></div>
 <div style="display: contents;" @click="logout()"><img src="../assets/logout.png" class="logout-button"></div>
 <div style='float: right; color: black; position: relative; margin-right: 7px; top: 23px; border: 1px solid black; padding: 4px; font-size: 13px;'><a href="/#/new_dp" style="color: black;">+ un dépannage</a></div>
   <div class="hello">
@@ -140,6 +144,12 @@ export default {
         position: relative;
         top: 27px;
         left: 55px;
+    }
+    .reload-button {
+        width: 20px;
+        position: relative;
+        top: 27px;
+        left: 40px;
     }
     .color-legend {
         display: flex;
