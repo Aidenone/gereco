@@ -71,14 +71,17 @@ export default {
 		.then((response) => {
 			let compteur_cache_current = false;
 			for (let compteur of response.data) {
-				let compteurs_cache = cache["compteurs"];
-				if(compteurs_cache.length != 0) {
-					for (let compteur_cache of compteurs_cache) {
-						if(compteur_cache["id"] == compteur.Cpt_id) {
-							compteur_cache_current = compteur_cache;
+				if(cache) {
+					let compteurs_cache = cache["compteurs"];
+					if(compteurs_cache.length != 0) {
+						for (let compteur_cache of compteurs_cache) {
+							if(compteur_cache["id"] == compteur.Cpt_id) {
+								compteur_cache_current = compteur_cache;
+							}
 						}
 					}
 				}
+				
 				if(!compteur_cache_current == false) {
 					this.compteurs.push(
 						{
@@ -405,7 +408,7 @@ export default {
 					<tr v-for="(item, index) in compteurs" :key="index" class="vg-line">
 						<td><input style="width: 70px;" type="text" v-model="item.numero" @input="saveFormData(index)" /></td>
 						<td><input style="width: 28px;" type="text" v-model="item.type" @input="saveFormData(index)" /></td>
-						<td><input style="width: 60px;" type="text" v-model="item.date" @input="saveFormData(index)" /></td>
+						<td><input style="width: 60px;" type="date" v-model="item.date" @input="saveFormData(index)" /></td>
 						<td><textarea style="width: 40px;" v-model="item.localisation" @input="saveFormData(index)"></textarea></td>
 						<td><input style="width: 34px;" type="text" v-model="item.index" @input="saveFormData(index)" /></td>
 						<div @click="removeCompteur(index)" class="line_remover"> x </div>
