@@ -176,6 +176,7 @@
 						<tr v-for="(item, index) in appartements.inter" :key="index">
 							<td>
 								<select style="width: 50px;" v-model="item['inter_lieu']" @change="saveFormData(index)">
+									<option></option>
 									<option>SDB</option>
 									<option>WC</option>
 									<option>Cuis.</option>
@@ -185,6 +186,7 @@
 							</td>
 							<td>
 								<select style="width: 75px;" v-model="item['inter_type']" @change="saveFormData(index)">
+									<option value=""></option>
 									<option value="1">RA - Robinet arrêt</option>
 									<option value="4">WC</option>
 									<option value="3">ROB - Robinetterie</option>

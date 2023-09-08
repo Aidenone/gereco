@@ -173,6 +173,13 @@ export default {
 			</div>
 
 			<div class="form_bloc">
+				<div class="form_bloc_title">Code</div>
+				<div class="form_bloc_content">
+					<div>{{resp.gardien_code}}</div>
+				</div>
+			</div>
+
+			<div class="form_bloc">
 				<div class="form_bloc_title">Ordre</div>
 				<div class="form_bloc_content">
 					<div class="col">
@@ -243,13 +250,11 @@ export default {
 							<tr>
 								<th>Nom</th>
 								<th>Adresse loge</th>
-								<th>Code</th>
 								<th>Horaire</th>
 							</tr>
 							<tr>
 								<td>{{resp.gardien_nom}}</td>
 								<td>{{resp.gardien_adresse}}</td>
-								<td>{{resp.gardien_code}}</td>
 								<td>{{resp.gardien_HeuresLoge}}</td>
 							</tr>
 						</table>
@@ -323,6 +328,7 @@ export default {
 							<tr v-for="(item, index) in inter" :key="index">
 								<td>
 									<select style="width: 50px;" v-model="item['inter_lieu']" @change="saveFormData(index)">
+										<option></option>
 										<option>SDB</option>
 										<option>WC</option>
 										<option>Cuis.</option>
@@ -332,6 +338,7 @@ export default {
 								</td>
 								<td>
 									<select style="width: 75px;" v-model="item['inter_type']" @change="saveFormData(index)">
+										<option></option>
 										<option value="1">RA - Robinet arrêt</option>
 										<option value="4">WC</option>
 										<option value="3">ROB - Robinetterie</option>

@@ -46,7 +46,7 @@ export default {
       ],
     };
   },
-  mounted() {
+  async mounted() {
     let uri = window.location.href.split('?');
 	let vars = uri[1].split('&');
 	let getVars = {};
@@ -58,6 +58,7 @@ export default {
 	});
 	let item_id = getVars['item_id'];
 	this.vg_id = item_id;
+	let cache = await get('VG-'+this.vg_id);
     axios.get(this.currIp+'/mission_vg?item_id='+item_id)
     .then((response) => {
 		this.resp = response.data;
@@ -68,18 +69,41 @@ export default {
 		});
 		axios.get(this.currIp+'/get_compteurs?ctr_id='+this.resp.Ctr_code)
 		.then((response) => {
-			console.log(response.data);
+			let compteur_cache_current = false;
 			for (let compteur of response.data) {
-				this.compteurs.push(
-					{
-						numero: compteur.Cpt_numero,
-						type: compteur.Cpt_nature,
-						date: '',
-						index: '',
-						localisation: compteur.Cpt_localisation,
-						new: false
+				let compteurs_cache = cache["compteurs"];
+				if(compteurs_cache.length != 0) {
+					for (let compteur_cache of compteurs_cache) {
+						if(compteur_cache["id"] == compteur.Cpt_id) {
+							compteur_cache_current = compteur_cache;
+						}
 					}
-				);
+				}
+				if(!compteur_cache_current == false) {
+					this.compteurs.push(
+						{
+							id: compteur_cache_current["id"],
+							numero: compteur_cache_current["numero"],
+							type: compteur_cache_current["type"],
+							date: compteur_cache_current["date"],
+							index: compteur_cache_current["index"],
+							localisation: compteur_cache_current["localisation"],
+							new: false
+						}
+					);
+				} else {
+					this.compteurs.push(
+						{
+							id: compteur.Cpt_id,
+							numero: compteur.Cpt_numero,
+							type: compteur.Cpt_nature,
+							date: '',
+							index: '',
+							localisation: compteur.Cpt_localisation,
+							new: false
+						}
+					);
+				}
 			}
 			this.getFormData();
 		});
@@ -154,9 +178,7 @@ export default {
 				porte: '',
 				suivi: '',
 				remarque_inter: '',
-				checkbox_cloture: false,
-				checkbox_suspens: false,
-				checkbox_devis: false,
+				statut: 'Clôturé',
 				remarque: '',
 				inter: [
 					{
@@ -221,7 +243,7 @@ export default {
 		axios.post(this.currIp+"/submit_vg", content).then((response) => {
 			console.log(response.data);
 		});
-		// this.$router.push('/');
+		this.$router.push('/');
     },
   },
 };
@@ -247,6 +269,10 @@ export default {
 					{{ resp.Imm_1_adr }}<br>
 					{{ resp.Imm_2_adr }}
 				</div>
+			</div>
+			<div class="form_bloc_title">Code</div>
+			<div class="form_bloc_content">
+				<div>{{resp.gardien_code}}</div>
 			</div>
 			<div class="form_bloc_content table_container">
 				<div>
@@ -274,13 +300,11 @@ export default {
 						<tr>
 							<th>Nom</th>
 							<th>Adresse loge</th>
-							<th>Code</th>
 							<th>Horaire</th>
 						</tr>
 						<tr>
 							<td>{{resp.gardien_nom}}</td>
 							<td>{{resp.gardien_adresse}}</td>
-							<td>{{resp.gardien_code}}</td>
 							<td>{{resp.gardien_HeuresLoge}}</td>
 						</tr>
 					</table>
@@ -357,7 +381,7 @@ export default {
 								<option value="Avisé">Avisé</option>
 							</select>
 						</td>
-						<td style="text-align: center;" ><router-link v-if="this.vg_id" :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: index+1}}">--></router-link></td>
+						<td style="text-align: center;" ><router-link v-if="this.vg_id && item.suivi != 'Abs.' && item.suivi != 'Abs. x2' && item.suivi != 'RO' && item.suivi != 'Avisé' " :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: index+1}}">--></router-link></td>
 						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
