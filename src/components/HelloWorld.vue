@@ -132,7 +132,7 @@ export default {
         </div>
     </li>
   </div>
-  <div class="version">v1.1.3</div>
+  <div class="version">v1.1.4</div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
