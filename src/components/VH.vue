@@ -6,23 +6,32 @@ export default {
   name: 'VH',
   data() {
     return {
-      vh_id: '',
+      isShowGreen: true,
+      currIp: this.currIp,
       resp: '',
+      vh_id: '',
       remarque: '',
+      signature: {
+		image: '',
+		data_arr: {}
+      },
       inter_option: [],
       appartements: [
 		//ajouter tous les champs -> identiques que VGInter
         {
-			num: '1',
-			nom: '',
+			num: '',
 			bat: '',
+			nom: '',
 			escalier: '',
 			etage: '',
 			porte: '',
-			suivi: '',
-			temps_passe: '',
+			objet: '',
+			signature: {
+				image: '',
+				data_arr: {}
+			},
 			remarque_inter: '',
-			statut: '',
+			statut: 'Clôturé',
 			checkbox_devis: false,
 			remarque: '',
 			inter: [
@@ -41,23 +50,32 @@ export default {
       ],
     };
   },
-  mounted() {
+  async mounted() {
     let uri = window.location.href.split('?');
 	let vars = uri[1].split('&');
 	let getVars = {};
 	let tmp = '';
 	vars.forEach(function(v) {
-	tmp = v.split('=');
-	if(tmp.length == 2)
-		getVars[tmp[0]] = tmp[1];
+		tmp = v.split('=');
+		if(tmp.length == 2)
+			getVars[tmp[0]] = tmp[1];
 	});
 	let item_id = getVars['item_id'];
 	this.vh_id = item_id;
+	let cache = await get('VH-'+this.vh_id);
+
+	//get signature if exist
+	if(cache !== undefined 
+		&& cache["signature"]["data_arr"] !== undefined
+		&& Object.keys(cache["signature"]["data_arr"]).length > 0
+	) {
+		this.$refs.signaturePad.fromData(cache["signature"]["data_arr"]);
+	}
+
     axios.get(this.currIp+'/mission_vh?item_id='+item_id).then((response) => {
 		this.resp = response.data;
 		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code).then((response) => {
 			this.inter_option = response.data;
-			console.log(this.inter_option);
 			this.getFormData();
 		});
 	});
@@ -67,6 +85,24 @@ export default {
     window.removeEventListener('beforeunload', this.saveFormData);
   },
   methods: {
+	undo() {
+			this.$refs.signaturePad.undoSignature();
+			this.save();
+	},
+	save() {
+		const { data } = this.$refs.signaturePad.saveSignature();
+		var sanitizedData = "";
+		if(data) {
+			sanitizedData = data.replace('data:', '').replace(/^.+,/, '');
+		}
+		const signData = this.$refs.signaturePad.toData();
+		this.signature.image = sanitizedData;
+		this.signature.data_arr = signData;
+		this.saveFormData();
+	},
+	onEnd() {
+		this.save();
+	},
 	async saveFormData(occ) {
 		occ = occ+1;
 		//Data from table + form
@@ -104,10 +140,13 @@ export default {
 		if(await get('VH-'+this.vh_id) !== undefined) {
 			let savedData = await get('VH-'+this.vh_id);
 			this.remarque = savedData.remarque;
+			this.compte_rendu = savedData.compte_rendu;
+			this.signature = savedData.signature;
+			this.temps_passe = savedData.temps_passe;
 		}
 		this.saveFormData();
     },
-    removeLine(index) {
+	removeLine(index) {
 		if(confirm("Voulez-vous supprimer cette ligne ?")){
 			this.appartements.splice(index, 1);
 			this.saveFormData();
@@ -118,48 +157,57 @@ export default {
 		var curr_num = current.num;
 
 		this.appartements.push( 
-		{
-			num: Number(curr_num) + 1,
-			bat: '',
-			escalier: '',
-			etage: '',
-			porte: '',
-			suivi: '',
-			temps_passe: '',
-			remarque_inter: '',
-			checkbox_cloture: false,
-			checkbox_suspens: false,
-			checkbox_devis: false,
-			remarque: '',
-			inter: [
-				{
-					inter_type: '',
-					inter_lieu: '',
-					inter_presta: '',
-					inter_qty: '1',
+			{
+				num: Number(curr_num) + 1,
+				bat: current.bat,
+				nom: '',
+				escalier: current.escalier,
+				etage: current.etage,
+				porte: '',
+				suivi: '',
+				signature: {
+					image: '',
+					data_arr: {}
 				},
-			],
-			verif_ra: false,
-			verif_rob: false,
-			verif_wc: false,
-			verif_gen: false
-		}
+				remarque_inter: '',
+				statut: 'Clôturé',
+				remarque: '',
+				inter: [
+					{
+						inter_type: '',
+						inter_lieu: '',
+						inter_presta: '',
+						inter_qty: '1',
+					},
+				],
+				verif_ra: false,
+				verif_rob: false,
+				verif_wc: false,
+				verif_gen: false
+			}
 		);
 		this.saveFormData();
     },
 	submitForm() {
 		const content = {
 			appartements: this.appartements,
+			temps_passe: this.temps_passe,
+			compte_rendu: this.compte_rendu,
 			vh_id: this.vh_id,
 			ctr_code: this.resp.Ctr_code,
 			ctr_nature: this.resp.Ctr_nature,
-			remarque: this.remarque
+			remarque: this.remarque,
+			signature: this.signature
 		};
 		console.log(content);
-		axios.post(this.currIp+'/submit_vh', content).then((response) => {
-			console.log(response.data);
-		});
-		this.$router.push('/');
+		if(confirm("FINALISER LA VISITE. Vous allez envoyer les données au siège, vous ne pourrez plus accéder à cette VH.")){
+			axios.post(this.currIp+'/submit_vh', content).then((response) => {
+				console.log(response.data);
+				if (response.status == 200) {
+					this.$router.push('/');
+				}
+			});
+		}
     },
   },
 };
@@ -179,12 +227,16 @@ export default {
 			<div class="form_bloc_content">
 				<div class="col">
 					<div class="form_bloc_subtitle">Référence</div>
-					<div>14/0712</div>
+					<div>{{ resp.Evt_reference }}</div>
 				</div>
 				<div class="col">
 					{{ resp.Imm_1_adr }}<br>
 					{{ resp.Imm_2_adr }}
 				</div>
+			</div>
+			<div class="form_bloc_title">Code</div>
+			<div class="form_bloc_content">
+				<div>{{resp.gardien_code}}</div>
 			</div>
 			<div class="form_bloc_content table_container">
 				<div>
@@ -198,8 +250,8 @@ export default {
 						</tr>
 						<tr>
 							<td>{{ resp.Imm_nbLog }}</td>
-							<td>{{ Imm_nbCham }}</td>
-							<td>{{ Imm_nbWC }}</td>
+							<td>{{ resp.Imm_nbCham }}</td>
+							<td>{{ resp.Imm_nbWC }}</td>
 							<td>{{ resp.nbLocComm }}</td>
 						</tr>
 					</table>
@@ -212,13 +264,11 @@ export default {
 						<tr>
 							<th>Nom</th>
 							<th>Adresse loge</th>
-							<th>Code</th>
 							<th>Horaire</th>
 						</tr>
 						<tr>
 							<td>{{resp.gardien_nom}}</td>
 							<td>{{resp.gardien_adresse}}</td>
-							<td>{{resp.gardien_code}}</td>
 							<td>{{resp.gardien_HeuresLoge}}</td>
 						</tr>
 					</table>
@@ -263,9 +313,9 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div class="form_bloc vg">
+	<div class="form_bloc vg" style="margin-top: 40px;">
 		<div class="form_bloc_title">Interventions</div>
-		<div class="form_bloc_content table_container">
+		<div class="form_bloc_content table_container" style="margin-bottom: 40px;">
 			<div>
 				<table>
 					<tr>
@@ -288,17 +338,20 @@ export default {
 						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
-				<button @click="addItemAppartements">+</button>
+				<div @click="addItemAppartements" class="line_adder">+</div>
+			</div>
+		</div>
+
+		<label style="font-weight: bold;">Visa Gardien ou Représentant</label>
+		<div style="margin-bottom: 40px;">
+			<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+			<div>
+				<div @click="undo">Effacer</div>
 			</div>
 		</div>
 	</div>
 
-	<input style="background: #c2bdb9;
-		width: 70%;
-		border: 1px solid black;
-		margin-bottom: 20px;
-		height: 25px;
-		color: black;" class="input_button" type="submit" value="TERMINER L'INTERVENTION">
+	<input style="" class="input_button" type="submit" value="FINALISER LA VISITE">
   </form>
 </template>
 
@@ -320,7 +373,10 @@ export default {
 		margin: 0 !important;
 		font-size: 15px;
 		color: black;
-	}	
+	}
+	.signaturePad {
+		border: 1px solid black;
+	}
 	.form_header { 
 		background: #c2bdb9;;
 		width: 100%;
@@ -431,11 +487,13 @@ export default {
 		top: -1px;
 	}
 	.input_button {
-		background: #a6e3fc;
+		background: #c2bdb9;
 		width: 70%;
+		color: black;
 		border: 1px solid black;
 		margin-bottom: 20px;
 		height: 25px;
+		font-size: 16px;
 	}
 	.liste_vg th {
 		width: 25%;

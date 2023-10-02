@@ -1,16 +1,23 @@
 <script>
 import axios from "axios";
+import { get } from 'idb-keyval';
+
 
 export default {
     name: 'NewDP',
     data() {
 		return {
+			tech_id: '',
             DP_observations: '',
             DP_remarqueContractuelle: '',
             DP_remarqueInter: '',
             temps_passe: '',
 			statut: '',
-			image: undefined,
+			image: '',
+			signature: {
+				image: '',
+				data_arr: {}
+			},
 			raf_devis: false,
 			acces_porte: '',
             inter_option: [],
@@ -22,29 +29,48 @@ export default {
 					inter_qty: ''
 				},
 			],
-			occupant: {},
+			occupant: {
+				DPOC_bat: '',
+				DPOC_codeAcces: '',
+				DPOC_escalier: '',
+				DPOC_etage: '',
+				DPOC_occupant: '',
+				DPOC_porte: ''
+			},
 			currIp: this.currIp
 		};
 	},
-    mounted () {
+    async mounted () {
+		let tech_id = await get('current_tech');
+		this.tech_id = tech_id;
 		axios.get(this.currIp+'/get_all_presta').then((response) => {
 			this.inter_option = response.data;
 			console.log(this.inter_option);
 		});
-		// window.addEventListener('beforeunload', this.saveFormData);
+		window.addEventListener('beforeunload', this.saveFormData);
     },
 
 	beforeUnmount() {
-		// window.removeEventListener('beforeunload', this.saveFormData);
+		window.removeEventListener('beforeunload', this.saveFormData);
 	},
 	methods: {
 		undo() {
 			this.$refs.signaturePad.undoSignature();
+			this.save();
 		},
 		save() {
-			const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
-			console.log(isEmpty);
-			console.log(data);
+			const { data } = this.$refs.signaturePad.saveSignature();
+			var sanitizedData = "";
+			if(data) {
+				sanitizedData = data.replace('data:', '').replace(/^.+,/, '');
+			}
+			const signData = this.$refs.signaturePad.toData();
+			this.signature.image = sanitizedData;
+			this.signature.data_arr = signData;
+			console.log(this.occupant);
+		},
+		onEnd() {
+			this.save();
 		},
 		getFormValues() {
 			const content = {
@@ -54,18 +80,22 @@ export default {
 								temps_passe: this.temps_passe,
 								statut: this.statut,
 								acces_porte: this.acces_porte,
-								//bat, etag, port etc qui seront modifiables dans header
-								//nom de l'occupant
+								tech_id: this.tech_id,
 								raf_devis: this.raf_devis,
 								inter: this.inter,
 								occupant: this.occupant,
+								signature: this.signature,
 								image: this.image
 							};
 			console.log(content);
-			axios.post(this.currIp+"/submit_new_dp", content).then((response) => {
-				console.log(response.data);
-				// this.$router.push('/');
-			});
+			if(confirm("TERMINER L'INTERVENTION. Vous allez envoyer les données au siège, vous ne pourrez plus accéder à cette DP.")){
+				axios.post(this.currIp+"/submit_new_dp", content).then((response) => {
+					console.log(response.data);
+					if (response.status == 200) {
+						this.$router.push('/');
+					}
+				});
+			}
 		},
 		addItem() {
 			if(this.inter[this.inter.length - 1] != undefined) {
@@ -103,15 +133,21 @@ export default {
 			this.inter.pop();
 			this.saveFormData();
 		},
-		handleFiles(event) {
-			this.image = event.target.files[0];
-			let data = new FormData();
-            data.append('file', this.image, "le bon nom");
-            this.image = data;
+		async handleFiles(e) {
+			var files = await e.target.files || await e.dataTransfer.files;
+			var file = files[0];
 
-			// axios.post(this.currIp+"/get_image", this.image).then((response) => {
-			// 	console.log(response.data);
-			// });
+			const reader = new FileReader();
+			reader.onloadend = () => {
+				// Use a regex to remove data url part
+				const base64String = reader.result
+					.replace('data:', '')
+					.replace(/^.+,/, '');
+				// Logs wL2dvYWwgbW9yZ...
+				this.image = base64String;
+				console.log(this.image);
+			};
+			reader.readAsDataURL(file);
 		}
 	}
 };
@@ -123,7 +159,7 @@ export default {
 		<div class="form_header">
 			<div class="header_headline">
 				<a href="/"><img class="return_button" src="../assets/fleche2_blanc.svg"></a>
-				<img src="../assets/logo_gereco_2.png">
+				<img src="../assets/logo-gereco-2.svg">
 			</div>
 			<div style="font-size: 19px; color:white; font-weight: bold;">NOUVEAU DÉPANNAGE</div>
 			
@@ -167,7 +203,7 @@ export default {
 			</div>
 		</div>
 
-		<div class="form_bloc intervention">
+		<div class="form_bloc intervention" style="margin-top: 40px;">
 			<div class="form_bloc_title">Intervention</div>
 			<div class="form_bloc_content">
 
@@ -213,7 +249,7 @@ export default {
 						</table>
 
 						<p>
-							<label style="font-weight: bold;">Remarque si autre Lieu ou autre robinetterie: </label><br>
+							<label style="">Remarque si autre Lieu ou autre robinetterie: </label><br>
 							<textarea v-model="DP_remarqueInter"></textarea>
 						</p>
 
@@ -228,7 +264,7 @@ export default {
 		<div class="form_bloc intervention">
 			<div class="form_bloc_title">Compte rendu / Commentaires :</div>
 			<div class="form_bloc_content">
-				<div id="intervention">
+				<div id="intervention" style="margin-bottom: 20px;">
 					<label>Accès porte</label>
 					<select v-model="this.acces_porte">
 						<option>Occupant</option>
@@ -239,7 +275,7 @@ export default {
 						<option>Avisé</option>
 					</select>
 				</div>
-				<div>
+				<div style="margin-bottom: 20px;">
 					<label>Observations :</label>
 					<textarea v-model="DP_observations"></textarea>
 				</div>
@@ -250,11 +286,12 @@ export default {
 						<option>En suspens</option>
 					</select>
 				</div>
-				<div>
+				<div style="margin-bottom: 20px;">
 					<input type="checkbox" name="checkbox_devis" v-model="this.raf_devis">
 					<label for="checkbox_devis">Devis à faire</label><br>
 				</div>
-				<div>
+
+				<div style="margin-bottom: 20px;">
 					<label>Temps passé (hors déplacement)* :</label>
 					<select v-model="this.temps_passe">
 						<option value="15">15min</option>
@@ -275,22 +312,23 @@ export default {
 						<option value="240">4h</option>
 					</select>
 				</div>
-				<div>
-					<label>Photo :</label><br>
+
+				<div style="margin-bottom: 20px;">
+					<label>Photo de l'intervention :</label><br>
 					<input type="file" id="image_upload" name="image" @change="handleFiles" accept="image/png, image/jpeg">
 				</div>
+				<img :src="'data:image/png;base64 ,' + this.image" v-if="this.image != ''" style="width: 60px; margin-bottom: 30px;">
+
+				<label style="">Visa Gardien ou Représentant</label>
 				<div>
-					<label>Signature :</label>
-					<VueSignaturePad class="signaturePad" ref="signaturePad" />
-					<div>
-						<!-- Need to save on submit / save button is useless -->
-						<!-- <button @click="save">Sauvegarder</button> -->
-						<button @click="undo">Effacer</button>
+					<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+					<div style="display: flex; justify-content: center;">
+						<div @click="undo">Effacer</div>
 					</div>
 				</div>
 			</div>
 		</div>
-		<input class="input_button" type="submit" value="TERMINER L'INTERVENTION">
+		<input class="input_button" type="submit" value="TERMINER L'INTERVENTION" style="margin-top: 20px;">
 	</form>
 </template>
 
@@ -435,6 +473,7 @@ export default {
 		border: 1px solid black;
 		margin-bottom: 20px;
 		height: 25px;
+		font-size: 16px;
 	}
 	table, td, th {
 		border: 1px solid black;

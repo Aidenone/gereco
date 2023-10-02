@@ -91,7 +91,7 @@ export default {
     <div class="color-legend">
         <div style="background: #82C0CC;">Visite Générale</div>
         <div style="background: #f69159;">Dépannage</div>
-        <div style="background: #f6b553;">Visite Hebdo</div>
+        <div style="background: #c2bdb9;">Visite Hebdo</div>
     </div>
     <li v-for="(item, index) in data_tasks" v-bind:key="index">
         <div class="planning_elem dp_elem" v-if="item.Item_type === 'DP'">
@@ -100,7 +100,7 @@ export default {
                 <div id="planning_type">{{ item.Item_type }}</div>
             </div>
             <div>
-                <div id="planning_ref">Référence :<br> {{ item.Item_reference }}</div>
+                <div id="planning_ref">Référence :<br> {{ item.Evt_reference }} </div>
                 <div id="planning_adress">{{ item.Imm_1_adr }}<br>{{ item.Imm_CP}} - {{ item.Imm_ville }}</div>
             </div>
             <div id="planning_object">Objet : {{ item.DP_objetIntervention }}</div>
@@ -113,7 +113,7 @@ export default {
                 <div id="planning_type">{{ item.Item_type }}</div>
             </div>
             <div>
-                <div id="planning_ref">Référence :<br> {{ item.Item_reference }}</div>
+                <div id="planning_ref">Référence :<br> {{ item.Evt_reference }} </div>
                 <div id="planning_adress">{{ item.Imm_1_adr }}<br>{{ item.Imm_CP}} - {{ item.Imm_ville }}</div>
             </div>
             <router-link v-bind:to="{ name: 'IDBTest', query: { item_id: item.Item_id }}"><div class="buttonLink">Effectuer l'intervention <img src="../assets/fleche_blanc.svg"></div></router-link>
@@ -125,14 +125,14 @@ export default {
                 <div id="planning_type">{{ item.Item_type }}</div>
             </div>
             <div>
-                <div id="planning_ref">Référence :<br> {{ item.Item_reference }}</div>
+                <div id="planning_ref">Référence :<br> {{ item.Evt_reference }} </div>
                 <div id="planning_adress">{{ item.Imm_1_adr }}<br>{{ item.Imm_CP}} - {{ item.Imm_ville }}</div>
             </div>
             <router-link v-bind:to="{ name: 'vh', query: { item_id: item.Item_id }}"><div class="buttonLink">Effectuer l'intervention <img src="../assets/fleche_blanc.svg"></div></router-link>
         </div>
     </li>
   </div>
-  <div class="version">v1.1.5</div>
+  <div class="version">v W1.2.1</div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

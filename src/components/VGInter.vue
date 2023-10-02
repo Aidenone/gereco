@@ -17,6 +17,10 @@
 					etage: '',
 					porte: '',
 					suivi: '',
+					signature: {
+						image: '',
+						data_arr: {}
+					},
 					remarque_inter: '',
 					statut: 'Clôturé',
 					checkbox_devis: false,
@@ -36,7 +40,7 @@
 				},
 			};
 		},
-		mounted() {
+		async mounted() {
 			let uri = window.location.href.split('?');
 			let vars = uri[1].split('&');
 			let getVars = {};
@@ -49,14 +53,41 @@
 			let item_id = getVars.vgocc;
 			this.vg_occ = item_id;
 			this.vg_id = this.$route.params.id;
+			let cache = await get('VG-'+this.vg_id+'-'+this.vg_occ);
+
+			//get signature if exist
+			if(cache !== undefined 
+				&& cache["signature"]["data_arr"] !== undefined
+				&& Object.keys(cache["signature"]["data_arr"]).length > 0
+			) {
+				this.$refs.signaturePad.fromData(cache["signature"]["data_arr"]);
+			}
 			
 			this.getFormData();
-			window.addEventListener('beforeunload', this.saveFormData);
+			// window.addEventListener('beforeunload', this.saveFormData);
 		},
 		beforeUnmount() {
-			window.removeEventListener('beforeunload', this.saveFormData);
+			// window.removeEventListener('beforeunload', this.saveFormData);
 		},
 		methods: {
+			undo() {
+				this.$refs.signaturePad.undoSignature();
+				this.save();
+			},
+			save() {
+				const { data } = this.$refs.signaturePad.saveSignature();
+				var sanitizedData = "";
+				if(data) {
+					sanitizedData = data.replace('data:', '').replace(/^.+,/, '');
+				}
+				const signData = this.$refs.signaturePad.toData();
+				this.appartements.signature.image = sanitizedData;
+				this.appartements.signature.data_arr = signData;
+				this.saveFormData();
+			},
+			onEnd() {
+				this.save();
+			},
 			async saveFormData() {
 				//Data from table + form
 				var result = this.$data;
@@ -108,8 +139,21 @@
 				this.appartements.inter.pop();
 				this.saveFormData();
 			},
-			submitForm() {
-				this.getFormData();
+			async handleFiles(e) {
+				var files = await e.target.files || await e.dataTransfer.files;
+				var file = files[0];
+
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					// Use a regex to remove data url part
+					const base64String = reader.result
+						.replace('data:', '')
+						.replace(/^.+,/, '');
+					// Logs wL2dvYWwgbW9yZ...
+					this.appartements.signature = base64String;
+					this.saveFormData();
+				};
+				reader.readAsDataURL(file);
 			},
 		},
 	};
@@ -143,22 +187,22 @@
 			</tr>
 		</table>
 
-		<div>Nom de l'occupant :</div>
-		<input type="text" name="occ_nom" v-model="this.appartements.nom" @change="saveFormData(index)">
+		<div class="form_bloc_title" style="color: black; margin-left: 20px; margin-top: 30px;">Nom de l'occupant</div>
+		<input type="text" name="occ_nom" v-model="this.appartements.nom" @change="saveFormData(index)" style="margin-bottom: 40px;">
 
-	<div class="checkbox_list">
+	<div class="checkbox_list" style="margin-bottom: 40px;">
 		<div class="form_bloc_title" style="color: black; margin-left: 20px;">Vérification</div>
-		<input type="checkbox" name="checkbox_ra" v-model="this.appartements.verif_ra" @change="saveFormData(index)">
-		<label for="checkbox_cloture">Vérification RA</label><br>
+		<input type="checkbox" name="checkbox_ra" v-if="this.inter_option['presta_fam1'] !== undefined && this.inter_option['presta_fam1'].length > 0" v-model="this.appartements.verif_ra" @change="saveFormData(index)">
+		<label v-if="this.inter_option['presta_fam1'] !== undefined && this.inter_option['presta_fam1'].length > 0" for="checkbox_cloture">Vérification RA</label><br>
 
-		<input type="checkbox" name="checkbox_rob" v-model="this.appartements.verif_rob" @change="saveFormData(index)">
-		<label for="checkbox_cloture">Verification Robinetterie</label><br>
+		<input type="checkbox" name="checkbox_rob" v-if="this.inter_option['presta_fam3'] !== undefined && this.inter_option['presta_fam3'].length > 0" v-model="this.appartements.verif_rob" @change="saveFormData(index)">
+		<label v-if="this.inter_option['presta_fam3'] !== undefined && this.inter_option['presta_fam3'].length > 0" for="checkbox_cloture">Verification Robinetterie</label><br>
 
-		<input type="checkbox" name="checkbox_wc" v-model="this.appartements.verif_wc" @change="saveFormData(index)">
-		<label for="checkbox_cloture">Verification WC</label><br>
+		<input type="checkbox" name="checkbox_wc" v-if="this.inter_option['presta_fam4'] !== undefined && this.inter_option['presta_fam4'].length > 0" v-model="this.appartements.verif_wc" @change="saveFormData(index)">
+		<label v-if="this.inter_option['presta_fam4'] !== undefined && this.inter_option['presta_fam4'].length > 0" for="checkbox_cloture">Verification WC</label><br>
 
-		<input type="checkbox" name="checkbox_gen" v-model="this.appartements.verif_gen" @change="saveFormData(index)">
-		<label for="checkbox_cloture">Verification Générique</label><br>
+<!-- 		<input type="checkbox" name="checkbox_gen" v-model="this.appartements.verif_gen" @change="saveFormData(index)">
+		<label for="checkbox_cloture">Verification Générique</label><br> -->
 	</div>
 
 	<div class="form_bloc intervention">
@@ -206,13 +250,14 @@
 							</td>
 						</tr>
 					</table>
-					<p>
-						<label style="font-weight: bold;">Remarque si autre Lieu ou autre Robinetterie: </label><br>
-						<textarea v-model="this.appartements.remarque_inter" @input="saveFormData(index)"></textarea>
-					</p>
 
 					<div class="more_inter_container"><a href="#" class="add-more-inter" @click.prevent="addItem">+</a></div>
 					<div class="more_inter_container"><a href="#" class="add-more-inter" @click.prevent="removeItem">-</a></div>
+
+					<p style="margin-top: 7px;">
+						<label style="">Remarque si autre Lieu ou autre Robinetterie: </label><br>
+						<textarea v-model="this.appartements.remarque_inter" @input="saveFormData(index)"></textarea>
+					</p>
 				</div>
 			</div>
 		</div>
@@ -231,13 +276,21 @@
 				<input type="checkbox" name="checkbox_devis" v-model="this.appartements.checkbox_devis" @change="saveFormData(index)">
 				<label for="checkbox_cloture">HC-Devis à faire</label>
 			</div>
-			<div>
+			<div style="margin-top: 5px;">
 				<label>Observations :</label>
 				<textarea v-model="this.appartements.remarque" @input="saveFormData(index)"></textarea>
 			</div>
+			<label style="">Visa Gardien ou Représentant</label>
+			<div>
+				<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+				<div style="display: flex; justify-content: center;">
+					<div @click="undo">Effacer</div>
+				</div>
+			</div>
 		</div>
 	</div>
-	<a :href="'/#/idbtest/?item_id=' + this.vg_id" style="background: #81c0cc; color: white; padding: 10px; border-radius: 10px;">SAUVEGARDER</a>
+	<a :href="'/#/idbtest/?item_id=' + this.vg_id" style="position: relative; top: 12px; background: #81c0cc; color: white; padding: 10px; border-radius: 10px;">SAUVEGARDER</a>
+	<div style="height: 30px; width: 40px;"></div>
 	</form>
 </template>
 
@@ -255,6 +308,9 @@
 		border-bottom-left-radius: 25px;
 		border-bottom-right-radius: 25px;
 		margin-bottom: 20px;
+	}
+	.signaturePad {
+		border: 1px solid black;
 	}
 	.header_headline > img {
 		width: 50px;
@@ -355,7 +411,6 @@
 		text-align: center;
 		display: inline-block;
 		margin-right: 5px;
-		margin-bottom: 20px;
 	}
 	.checkbox_list label {
 		margin-right: 20px;

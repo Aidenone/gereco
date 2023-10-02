@@ -10,14 +10,19 @@ export default {
       currIp: this.currIp,
       resp: '',
       vg_id: '',
+      tech_id: '',
+      date_enregistrement: '',
       compte_rendu: '',
       remarque: '',
       temps_passe: '',
+      signature: {
+		image: '',
+		data_arr: {}
+      },
       inter_option: [],
       compteurs: [
       ],
       appartements: [
-		//ajouter tous les champs -> identiques que VGInter
         {
 			num: '',
 			bat: '',
@@ -26,6 +31,10 @@ export default {
 			etage: '',
 			porte: '',
 			suivi: '',
+			signature: {
+				image: '',
+				data_arr: {}
+			},
 			remarque_inter: '',
 			statut: 'Clôturé',
 			checkbox_devis: false,
@@ -59,6 +68,18 @@ export default {
 	let item_id = getVars['item_id'];
 	this.vg_id = item_id;
 	let cache = await get('VG-'+this.vg_id);
+
+	let tech_id = await get('current_tech');
+	this.tech_id = tech_id;
+
+	//get signature if exist
+	if(cache !== undefined 
+		&& cache["signature"]["data_arr"] !== undefined
+		&& Object.keys(cache["signature"]["data_arr"]).length > 0
+	) {
+		this.$refs.signaturePad.fromData(cache["signature"]["data_arr"]);
+	}
+	
     axios.get(this.currIp+'/mission_vg?item_id='+item_id)
     .then((response) => {
 		this.resp = response.data;
@@ -111,22 +132,33 @@ export default {
 			this.getFormData();
 		});
 	});
-    // window.addEventListener('beforeunload', this.saveFormData);
+    window.addEventListener('beforeunload', this.saveFormData);
   },
   beforeUnmount() {
-    // window.removeEventListener('beforeunload', this.saveFormData);
+    window.removeEventListener('beforeunload', this.saveFormData);
   },
   methods: {
 	undo() {
 			this.$refs.signaturePad.undoSignature();
-		},
+			this.save();
+	},
 	save() {
-		const { isEmpty, data } = this.$refs.signaturePad.saveSignature();
-		console.log(isEmpty);
-		console.log(data);
+		const { data } = this.$refs.signaturePad.saveSignature();
+		var sanitizedData = "";
+		if(data) {
+			sanitizedData = data.replace('data:', '').replace(/^.+,/, '');
+		}
+		const signData = this.$refs.signaturePad.toData();
+		this.signature.image = sanitizedData;
+		this.signature.data_arr = signData;
+		this.saveFormData();
+	},
+	onEnd() {
+		this.save();
 	},
     async saveFormData(occ) {
 		occ = occ+1;
+
 		//Data from table + form
 		var result = this.$data;
 		var test = JSON.stringify(result);
@@ -162,7 +194,10 @@ export default {
 		if(await get('VG-'+this.vg_id) !== undefined) {
 			let savedData = await get('VG-'+this.vg_id);
 			this.compte_rendu = savedData.compte_rendu;
+			this.compteurs = savedData.compteurs;
+			this.signature = savedData.signature;
 			this.temps_passe = savedData.temps_passe;
+			this.date_enregistrement = savedData.date_enregistrement,
 			this.remarque = savedData.remarque;
 		}
 		this.saveFormData();
@@ -180,8 +215,13 @@ export default {
 				etage: current.etage,
 				porte: '',
 				suivi: '',
+				signature: {
+					image: '',
+					data_arr: {}
+				},
 				remarque_inter: '',
 				statut: 'Clôturé',
+				checkbox_devis: false,
 				remarque: '',
 				inter: [
 					{
@@ -230,7 +270,52 @@ export default {
 			this.saveFormData();
 		}
 	},
+	enregistrer() {
+		const content = {
+			appartements: this.appartements,
+			compteurs: [],
+			compte_rendu: this.compte_rendu,
+			vg_id: this.vg_id,
+			remarque: this.remarque,
+			ctr_code: this.resp.Ctr_code,
+			ctr_nature: this.resp.Ctr_nature,
+			signature: this.signature
+		};
+		console.log(content);
+		var today = new Date();
+		var dd = today.getDate();
+		var mm = today.getMonth()+1; 
+		var yyyy = today.getFullYear();
+		var hh = today.getHours();
+		var ll = today.getMinutes();
+
+		if(dd<10)
+			dd='0'+dd;
+		if(mm<10)
+			mm='0'+mm;
+		if(ll<10)
+			ll='0'+ll;
+
+		today = dd+'-'+mm+'-'+yyyy+' '+hh+':'+ll;
+
+		axios.post(this.currIp+"/submit_vg", content).then((response) => {
+			console.log(response.data);
+			if (response.status == 200) {
+				this.date_enregistrement = today;
+			}
+			//else message d'erreur
+		});
+	},
 	submitForm() {
+		//format compteur date
+		for (var i = 0; i < this.compteurs.length; i++) {
+			if(this.compteurs[i].date !== '') {
+				var datePart = this.compteurs[i].date.match(/\d+/g);
+				var finalDate = datePart[2] + '/' + datePart[1] +'/'+ datePart[0];
+				this.compteurs[i].date = finalDate;
+			}
+		}
+
 		const content = {
 			appartements: this.appartements,
 			compteurs: this.compteurs,
@@ -239,14 +324,20 @@ export default {
 			vg_id: this.vg_id,
 			remarque: this.remarque,
 			ctr_code: this.resp.Ctr_code,
-			ctr_nature: this.resp.Ctr_nature
+			ctr_nature: this.resp.Ctr_nature,
+			signature: this.signature,
+			tech_id: this.tech_id
 		};
-		// console.log(content);
 		console.log(content);
-		axios.post(this.currIp+"/submit_vg", content).then((response) => {
-			console.log(response.data);
-		});
-		this.$router.push('/');
+		if(confirm("FINALISER LA VISITE. Vous allez envoyer les données au siège, vous ne pourrez plus accéder à cette VG.")){
+			axios.post(this.currIp+"/submit_vg", content).then((response) => {
+				console.log(response.data);
+				if (response.status == 200) {
+					this.$router.push('/');
+				}
+				//else message d'erreur
+			});
+		}
     },
   },
 };
@@ -266,7 +357,7 @@ export default {
 			<div class="form_bloc_content">
 				<div class="col">
 					<div class="form_bloc_subtitle">Référence</div>
-					<div></div>
+					<div>{{ resp.Evt_reference }}<span v-if="resp.Ctr_nature == 'P' || resp.Ctr_nature == 'B'"> - Cubage</span></div>
 				</div>
 				<div class="col">
 					{{ resp.Imm_1_adr }}<br>
@@ -353,7 +444,7 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div class="form_bloc vg">
+	<div class="form_bloc vg" style="margin-top: 40px;">
 		<div class="form_bloc_title">Appartements <div class="filter_button" @click="isShowGreen = !isShowGreen">Filtrer</div></div>
 		<div class="form_bloc_content table_container">
 			<div>
@@ -392,8 +483,10 @@ export default {
 			</div>
 		</div>
 	</div>
+	<div class="save_button" style="margin-top: 20px;" @click="enregistrer">ENREGISTRER</div>
+	<div>Dernier enregistrement : {{date_enregistrement}}</div>
 
-	<div class="form_bloc compteurs">
+	<div class="form_bloc compteurs" style="margin-top: 40px;">
 		<div class="form_bloc_title">Compteurs</div>
 		<div class="form_bloc_content table_container">
 			<div>
@@ -409,8 +502,8 @@ export default {
 						<td><input style="width: 70px;" type="text" v-model="item.numero" @input="saveFormData(index)" /></td>
 						<td><input style="width: 28px;" type="text" v-model="item.type" @input="saveFormData(index)" /></td>
 						<td><input style="width: 60px;" type="date" v-model="item.date" @input="saveFormData(index)" /></td>
-						<td><textarea style="width: 40px;" v-model="item.localisation" @input="saveFormData(index)"></textarea></td>
-						<td><input style="width: 34px;" type="text" v-model="item.index" @input="saveFormData(index)" /></td>
+						<td><textarea style="width: 40px;" v-model="item.localisation" @input="saveFormData(index)" ></textarea></td>
+						<td><input style="width: 34px;" type="text" v-model="item.index" @input="saveFormData(index)" :disabled="item.date != '' ? disabled : ''"/></td>
 						<div @click="removeCompteur(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
@@ -419,7 +512,7 @@ export default {
 		</div>
 	</div>
 
-	<div class="form_bloc">
+	<div class="form_bloc" style="margin-top: 40px;">
 		<p>
 			<label style="font-weight: bold;">Compte-rendu: </label><br>
 			<textarea v-model="this.compte_rendu" @input="saveFormData(index)"></textarea>
@@ -444,17 +537,17 @@ export default {
 			</select>
 		</div>
 		
-		<label style="font-weight: bold;">Visa Gardien ou Représentant</label>
+		<label style="">Visa Gardien ou Représentant</label>
 		<div>
-			<VueSignaturePad class="signaturePad" ref="signaturePad" />
+			<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
 			<div>
-				<button @click="undo">Effacer</button>
+				<div @click="undo">Effacer</div>
 			</div>
 		</div>
 
 	</div>
     
-    <input class="input_button" type="submit" value="TERMINER L'INTERVENTION">
+    <input class="input_button" type="submit" value="FINALISER LA VISITE" style="margin-top: 20px;">
   </form>
 </template>
 
@@ -509,6 +602,14 @@ export default {
     }
 	.return_button {
 		filter: brightness(0%);
+	}
+	.save_button {
+		border: 1px solid black;
+		width: fit-content;
+		margin: auto;
+		margin-bottom: 6px;
+		padding: 6px;
+		background: #a7e2fc;
 	}
     .form_bloc.intervention .form_bloc_title {
 		color: black !important;
@@ -595,6 +696,7 @@ export default {
 		border: 1px solid black;
 		margin-bottom: 20px;
 		height: 25px;
+		font-size: 16px;
 	}
 	.liste_vg th {
 		width: 25%;
