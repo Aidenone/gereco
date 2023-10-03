@@ -1,5 +1,5 @@
 <script>
-import { set, get, del } from 'idb-keyval';
+import { set, get } from 'idb-keyval';
 import axios from "axios";
 
 export default {
@@ -157,7 +157,7 @@ export default {
 		this.save();
 	},
     async saveFormData(occ) {
-		occ = occ+1;
+		occ = occ + 1;
 
 		//Data from table + form
 		var result = this.$data;
@@ -165,11 +165,6 @@ export default {
 		test = JSON.parse(test);
 		if (isNaN(occ)) {
 			let i = 1;
-			while(await get('VG-'+this.vg_id+'-'+i)) {
-				await del('VG-'+this.vg_id+'-'+i);
-				i = i + 1;
-			}
-			i = 1;
 			while(test.appartements[i-1]) {
 				await set('VG-'+this.vg_id+'-'+i, test.appartements[i-1]);
 				i = i + 1;
