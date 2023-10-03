@@ -1,5 +1,5 @@
 <script>
-import { set, get } from 'idb-keyval';
+import { set, get, del } from 'idb-keyval';
 import axios from "axios";
 
 export default {
@@ -111,11 +111,15 @@ export default {
 		test = JSON.parse(test);
 		if (isNaN(occ)) {
 			let i = 1;
-			// while(await get('VH-'+this.vh_id+'-'+i)) {
-			// 	await del('VH-'+this.vh_id+'-'+i);
-			// 	i = i + 1;
-			// }
-			// i = 1;
+
+			while(await get('VH-'+this.vh_id+'-'+i)) {
+				if(test.appartements[i-1] === undefined)
+					await del('VH-'+this.vh_id+'-'+i);
+				i = i + 1;
+			}
+
+			i = 1;
+			
 			while(test.appartements[i-1]) {
 				await set('VH-'+this.vh_id+'-'+i, test.appartements[i-1]);
 				i = i + 1;
