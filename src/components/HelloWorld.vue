@@ -154,7 +154,7 @@ export default {
         width: 20px;
         position: relative;
         top: 27px;
-        left: 40px;
+        left: -70px;
     }
     .color-legend {
         display: flex;

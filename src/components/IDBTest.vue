@@ -459,9 +459,9 @@ export default {
 						<th>Bât.</th>
 						<th>Esc.</th>
 						<th>Et.</th>
-						<th>Porte</th>
+						<th>Pte</th>
 						<th>Suivi</th>
-						<th>Modifier</th>
+						<th>Modif</th>
 					</tr>
 					<tr v-for="(item, index) in appartements" :key="index" :class="{ 'green': item.suivi != 'Abs.' && item.suivi != '', 'invis': item.suivi != 'Abs.' && item.suivi != '' && !isShowGreen}">
 						<td>{{item.num}}</td>
@@ -524,7 +524,7 @@ export default {
 		</p>
 		<div style="margin-bottom: 20px;">
 			<label>Temps passé (hors déplacement)* :</label>
-			<select v-model="this.temps_passe" @change="saveFormData(index)">
+			<select v-model="this.temps_passe" @change="saveFormData(index)" required>
 				<option value="1">1 jours</option>
 				<option value="2">2 jours</option>
 				<option value="3">3 jours</option>

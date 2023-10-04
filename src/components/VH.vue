@@ -30,6 +30,7 @@ export default {
 				image: '',
 				data_arr: {}
 			},
+			temps_passe: '0',
 			remarque_inter: '',
 			statut: 'Clôturé',
 			checkbox_devis: false,
@@ -119,7 +120,7 @@ export default {
 			}
 
 			i = 1;
-			
+
 			while(test.appartements[i-1]) {
 				await set('VH-'+this.vh_id+'-'+i, test.appartements[i-1]);
 				i = i + 1;
@@ -184,6 +185,7 @@ export default {
 						inter_qty: '1',
 					},
 				],
+				temps_passe: '0',
 				verif_ra: false,
 				verif_rob: false,
 				verif_wc: false,

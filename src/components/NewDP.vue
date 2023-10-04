@@ -26,7 +26,7 @@ export default {
 					inter_type: '',
 					inter_lieu: '',
 					inter_presta: '',
-					inter_qty: ''
+					inter_qty: '1'
 				},
 			],
 			occupant: {

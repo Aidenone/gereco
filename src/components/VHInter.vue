@@ -22,7 +22,7 @@ export default {
 					image: '',
 					data_arr: {}
 				},
-				temps_passe: '',
+				temps_passe: '0',
 				remarque_inter: '',
 				statut: 'Clôturé',
 				checkbox_devis: false,
