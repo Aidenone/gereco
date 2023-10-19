@@ -525,20 +525,38 @@ export default {
 		<div style="margin-bottom: 20px;">
 			<label>Temps passé (hors déplacement)* :</label>
 			<select v-model="this.temps_passe" @change="saveFormData(index)" required>
-				<option value="1">1 jours</option>
+				<!-- Ajouter demi journées (1,5j) pour les 10 premiers jours + 2h/4h/6H la première journée -->
+				<option value="0.25">2 heures</option>
+				<option value="0.5">0,5 jour</option>
+				<option value="1">1 jour</option>
+				<option value="1.5">1,5 jour</option>
 				<option value="2">2 jours</option>
+				<option value="2.5">2,5 jours</option>
 				<option value="3">3 jours</option>
+				<option value="3.5">3,5 jours</option>
 				<option value="4">4 jours</option>
+				<option value="4.5">4,5 jours</option>
 				<option value="5">5 jours</option>
+				<option value="5.5">5,5 jours</option>
 				<option value="6">6 jours</option>
+				<option value="6.5">6,5 jours</option>
 				<option value="7">7 jours</option>
+				<option value="7.5">7,5 jours</option>
 				<option value="8">8 jours</option>
+				<option value="8.5">8,5 jours</option>
 				<option value="9">9 jours</option>
+				<option value="9.5">9,5 jours</option>
 				<option value="10">10 jours</option>
 				<option value="11">11 jours</option>
 				<option value="12">12 jours</option>
 				<option value="13">13 jours</option>
 				<option value="14">14 jours</option>
+				<option value="15">15 jours</option>
+				<option value="16">16 jours</option>
+				<option value="17">17 jours</option>
+				<option value="18">18 jours</option>
+				<option value="19">19 jours</option>
+				<option value="20">20 jours</option>
 			</select>
 		</div>
 		
