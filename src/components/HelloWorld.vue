@@ -20,9 +20,33 @@ export default {
         },
         reloadPage() {
             window.location.reload();
+        },
+        notifyMe() {
+          if (!("Notification" in window)) {
+            // Check if the browser supports notifications
+            alert("This browser does not support desktop notification");
+          } else if (Notification.permission === "granted") {
+            // Check whether notification permissions have already been granted;
+            // if so, create a notification
+            // …
+          } else if (Notification.permission == "denied") {
+            // We need to ask the user for permission
+            console.log('denied');
+            Notification.requestPermission().then((permission) => {
+                console.log(permission);
+              // If the user accepts, let's create a notification
+                // if (permission === "granted") {
+                // }
+            });
+          }
+          alert(Notification.permission);
+
+          // At last, if the user has denied notifications, and you
+          // want to be respectful there is no need to bother them anymore.
         }
     },
     async mounted () {
+
         let current_tech = await get('current_tech');
         if (typeof current_tech == 'undefined') {
             this.$router.push('/login/');
@@ -93,6 +117,9 @@ export default {
         <div style="background: #f69159;">Dépannage</div>
         <div style="background: #c2bdb9;">Visite Hebdo</div>
     </div>
+
+    <button @click="notifyMe">Notify me!</button>
+
     <li v-for="(item, index) in data_tasks" v-bind:key="index">
         <div class="planning_elem dp_elem" v-if="item.Item_type === 'DP'">
             <div>

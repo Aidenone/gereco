@@ -399,7 +399,10 @@ export default {
 										<option v-for="key in inter_option['presta_fam' + item['inter_type']]" :key="key" :value="key.id">
 											{{ key.libelle }}
 										</option>
-										<option value="991">Prestation hors-contrat</option>
+										<!-- <option value="199" v-if="item['inter_type'] == '1'">Prestation hors-contrat - RA</option>
+										<option value="499" v-if="item['inter_type'] == '4'">Prestation hors-contrat - WC</option>
+										<option value="399" v-if="item['inter_type'] == '3'">Prestation hors-contrat - ROB</option>
+										<option value="599" v-if="item['inter_type'] == '5'">Prestation hors-contrat - GEN</option> -->
 									</select>
 								</td>
 								<td>
