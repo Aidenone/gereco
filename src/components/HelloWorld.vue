@@ -29,9 +29,8 @@ export default {
             // Check whether notification permissions have already been granted;
             // if so, create a notification
             // …
-          } else if (Notification.permission == "denied") {
+          } else {
             // We need to ask the user for permission
-            console.log('denied');
             Notification.requestPermission().then((permission) => {
                 console.log(permission);
               // If the user accepts, let's create a notification
