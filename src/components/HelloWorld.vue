@@ -26,18 +26,21 @@ export default {
             // Check if the browser supports notifications
             alert("This browser does not support desktop notification");
           } else if (Notification.permission === "granted") {
-            // Check whether notification permissions have already been granted;
-            // if so, create a notification
-            // …
+                if (Notification.permission === "granted") {
+                    const notification = new Notification("Test", { body: "test notif" });
+                    console.log(notification);
+                }
           } else {
             // We need to ask the user for permission
             Notification.requestPermission().then((permission) => {
                 console.log(permission);
-              // If the user accepts, let's create a notification
-                // if (permission === "granted") {
-                // }
+                if (permission === "granted") {
+                    const notification = new Notification("Test", { body: "test notif" });
+                    console.log(notification);
+                }
             });
           }
+
           alert(Notification.permission);
 
           // At last, if the user has denied notifications, and you
