@@ -26,10 +26,8 @@ export default {
             // Check if the browser supports notifications
             alert("This browser does not support desktop notification");
           } else if (Notification.permission === "granted") {
-                if (Notification.permission === "granted") {
-                    const notification = new Notification("Test", { body: "test notif" });
-                    console.log(notification);
-                }
+                const notification = new Notification("Test", { body: "test notif" });
+                console.log(notification);
           } else {
             // We need to ask the user for permission
             Notification.requestPermission().then((permission) => {
@@ -40,8 +38,6 @@ export default {
                 }
             });
           }
-
-          alert(Notification.permission);
 
           // At last, if the user has denied notifications, and you
           // want to be respectful there is no need to bother them anymore.
