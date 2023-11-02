@@ -8,7 +8,18 @@ if (process.env.NODE_ENV === 'production') {
       console.log(
         'App is being served from cache by a service worker.\n' +
         'For more details, visit https://goo.gl/AFskqB'
-      )
+      );
+
+      // function checkDP() {
+      //  Notification.requestPermission().then((permission) => {
+      //         console.log(permission);
+      //         if (permission === "granted") {
+      //             const notification = new Notification("Test", { body: "test notif" });
+      //             console.log(notification);
+      //         }
+      //     });
+      // }
+      // setInterval(checkDP, 4000);
     },
     registered () {
       console.log('Service worker has been registered.')

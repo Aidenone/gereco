@@ -21,27 +21,29 @@ export default {
         reloadPage() {
             window.location.reload();
         },
-        notifyMe() {
-          if (!("Notification" in window)) {
-            // Check if the browser supports notifications
-            alert("This browser does not support desktop notification");
-          } else if (Notification.permission === "granted") {
-                const notification = new Notification("Test", { body: "test notif" });
-                console.log(notification);
-          } else {
-            // We need to ask the user for permission
-            Notification.requestPermission().then((permission) => {
-                console.log(permission);
-                if (permission === "granted") {
-                    const notification = new Notification("Test", { body: "test notif" });
-                    console.log(notification);
-                }
-            });
-          }
+        // notifyMe() {
+        //   if (!("Notification" in window)) {
+        //     // Check if the browser supports notifications
+        //     alert("This browser does not support desktop notification");
+        //   } else if (Notification.permission === "granted") {
+        //         const notification = new Notification("Test", { body: "test notif" });
+        //         console.log(notification);
+        //   } else {
+        //     // We need to ask the user for permission
+        //     Notification.requestPermission().then((permission) => {
+        //         console.log(permission);
+        //         if (permission === "granted") {
+        //             const notification = new Notification("Test", { body: "test notif" });
+        //             console.log(notification);
+        //         }
+        //     });
+        //   }
 
-          // At last, if the user has denied notifications, and you
-          // want to be respectful there is no need to bother them anymore.
-        }
+        //   console.log(Notification.permission);
+
+        //   // At last, if the user has denied notifications, and you
+        //   // want to be respectful there is no need to bother them anymore.
+        // }
     },
     async mounted () {
 
@@ -116,7 +118,7 @@ export default {
         <div style="background: #c2bdb9;">Visite Hebdo</div>
     </div>
 
-    <button @click="notifyMe">Notify me!</button>
+    <!-- <button @click="notifyMe">Notify me!</button> -->
 
     <li v-for="(item, index) in data_tasks" v-bind:key="index">
         <div class="planning_elem dp_elem" v-if="item.Item_type === 'DP'">
