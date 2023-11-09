@@ -121,7 +121,7 @@ export default {
         <div style="background: #c2bdb9;">Visite Hebdo</div>
     </div>
 
-    <button @click="notifyMe">Notify me!</button>
+    <!-- <button @click="notifyMe">Notify me!</button> -->
 
     <li v-for="(item, index) in data_tasks" v-bind:key="index">
         <div class="planning_elem dp_elem" v-if="item.Item_type === 'DP'">

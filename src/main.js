@@ -9,7 +9,7 @@ app.config.globalProperties.currIp = 'https://ns3359877.ip-37-187-97.eu'
 app.component("VueSignaturePad", VueSignaturePad);
 app.use(router).mount('#app')
 
-function checkDP() {
+// function checkDP() {
 	// Notification.requestPermission().then((permission) => {
  //        console.log(permission);
  //        if (permission === "granted") {
@@ -18,24 +18,24 @@ function checkDP() {
  //        }
  //    });
 
-    navigator.serviceWorker.register('service-worker.js');
-	if (Notification.permission === "granted") {
-		navigator.serviceWorker.ready.then(function(registration) {
-			registration.showNotification('Notification with ServiceWorker');
-		});
-	} else {
-		// We need to ask the user for permission
-		Notification.requestPermission().then((permission) => {
-			console.log(permission);
-			if (permission === "granted") {
-				navigator.serviceWorker.ready.then(function(registration) {
-					registration.showNotification('Notification with ServiceWorker');
-				});
-			}
-		});
-	}
-}
-setInterval(checkDP, 4000);
+ //    navigator.serviceWorker.register('service-worker.js');
+	// if (Notification.permission === "granted") {
+	// 	navigator.serviceWorker.ready.then(function(registration) {
+	// 		registration.showNotification('Notification with ServiceWorker');
+	// 	});
+	// } else {
+	// 	// We need to ask the user for permission
+	// 	Notification.requestPermission().then((permission) => {
+	// 		console.log(permission);
+	// 		if (permission === "granted") {
+	// 			navigator.serviceWorker.ready.then(function(registration) {
+	// 				registration.showNotification('Notification with ServiceWorker');
+	// 			});
+	// 		}
+	// 	});
+	// }
+// }
+// setInterval(checkDP, 4000);
 
 
 // async function test() {
