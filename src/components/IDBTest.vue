@@ -82,14 +82,17 @@ export default {
 	
     axios.get(this.currIp+'/mission_vg?item_id='+item_id)
     .then((response) => {
+		console.log("j'ai la mission");
 		this.resp = response.data;
 		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code)
 		.then((response) => {
+			console.log("j'ai les prestas");
 			this.inter_option = response.data;
 			this.getFormData();
 		});
 		axios.get(this.currIp+'/get_compteurs?ctr_id='+this.resp.Ctr_code)
 		.then((response) => {
+			console.log("j'ai les compteurs");
 			let compteur_cache_current = false;
 			for (let compteur of response.data) {
 				if(cache) {
@@ -104,18 +107,9 @@ export default {
 				}
 				
 				if(!compteur_cache_current == false) {
-					this.compteurs.push(
-						{
-							id: compteur_cache_current["id"],
-							numero: compteur_cache_current["numero"],
-							type: compteur_cache_current["type"],
-							date: compteur_cache_current["date"],
-							index: compteur_cache_current["index"],
-							localisation: compteur_cache_current["localisation"],
-							new: false
-						}
-					);
+					console.log("depuis le cache");
 				} else {
+					console.log("depuis la base");
 					this.compteurs.push(
 						{
 							id: compteur.Cpt_id,
@@ -129,6 +123,7 @@ export default {
 					);
 				}
 			}
+			this.saveFormData();
 		});
 	});
 	this.getFormData();
@@ -139,7 +134,7 @@ export default {
   },
   methods: {
 	undo() {
-			this.$refs.signaturePad.clearSignature();
+			this.$refs.signaturePad.undoSignature();
 			this.save();
 	},
 	save() {
@@ -195,6 +190,7 @@ export default {
 				data[i-1] = savedData;
 				i = i + 1;
 			}
+			console.log("Remplis les apparts");
 			this.appartements = data;
 		}
 
@@ -210,10 +206,10 @@ export default {
 		this.saveFormData();
     },
     addItemAppartements() {
-		var current = this.appartements[this.appartements.length - 1];
+		var current = this.appartements[0];
 		var curr_num = current.num;
 
-		this.appartements.push( 
+		this.appartements.unshift( 
 			{
 				num: Number(curr_num) + 1,
 				bat: current.bat,
@@ -288,6 +284,7 @@ export default {
 			ctr_nature: this.resp.Ctr_nature,
 			signature: this.signature
 		};
+		console.log(content);
 		var today = new Date();
 		var dd = today.getDate();
 		var mm = today.getMonth()+1; 
@@ -305,10 +302,11 @@ export default {
 		today = dd+'-'+mm+'-'+yyyy+' '+hh+':'+ll;
 
 		axios.post(this.currIp+"/submit_vg", content).then((response) => {
+			console.log(response.data);
 			if (response.status == 200) {
 				this.date_enregistrement = today;
+				this.saveFormData();
 			}
-			//else message d'erreur
 		});
 	},
 	submitForm() {
@@ -333,9 +331,10 @@ export default {
 			signature: this.signature,
 			tech_id: this.tech_id
 		};
-
+		console.log(content);
 		if(confirm("FINALISER LA VISITE. Vous allez envoyer les données au siège, vous ne pourrez plus accéder à cette VG.")){
 			axios.post(this.currIp+"/submit_vg", content).then((response) => {
+				console.log(response.data);
 				if (response.status == 200) {
 					this.$router.push('/');
 				}

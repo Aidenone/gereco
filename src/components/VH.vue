@@ -80,6 +80,7 @@ export default {
 			this.getFormData();
 		});
 	});
+	this.getFormData();
     window.addEventListener('beforeunload', this.saveFormData);
   },
   beforeUnmount() {
@@ -158,10 +159,10 @@ export default {
 		}
 	},
     addItemAppartements() {
-		var current = this.appartements[this.appartements.length - 1];
+		var current = this.appartements[0];
 		var curr_num = current.num;
 
-		this.appartements.push( 
+		this.appartements.unshift(
 			{
 				num: Number(curr_num) + 1,
 				bat: current.bat,
