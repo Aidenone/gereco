@@ -71,7 +71,7 @@
 		},
 		methods: {
 			undo() {
-				this.$refs.signaturePad.undoSignature();
+				this.$refs.signaturePad.clearSignature();
 				this.save();
 			},
 			save() {
@@ -234,7 +234,7 @@
 									<option value="1">RA - Robinet arrêt</option>
 									<option value="4">WC</option>
 									<option value="3">ROB - Robinetterie</option>
-									<option value="5">GENER - Générique</option>
+									<option value="5">Parties communes</option>
 								</select>
 							</td>
 							<td>

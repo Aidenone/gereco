@@ -129,9 +129,9 @@ export default {
 					);
 				}
 			}
-			this.getFormData();
 		});
 	});
+	this.getFormData();
     window.addEventListener('beforeunload', this.saveFormData);
   },
   beforeUnmount() {
@@ -139,7 +139,7 @@ export default {
   },
   methods: {
 	undo() {
-			this.$refs.signaturePad.undoSignature();
+			this.$refs.signaturePad.clearSignature();
 			this.save();
 	},
 	save() {
@@ -165,6 +165,8 @@ export default {
 		test = JSON.parse(test);
 		if (isNaN(occ)) {
 			let i = 1;
+			// Mais si on supprimme vg-xxx-2 du coup les while passent pas au 3 ?
+			// Ici sans internet ca sauvegarde pas les apparts
 
 			while(await get('VG-'+this.vg_id+'-'+i)) {
 				if(test.appartements[i-1] === undefined)
@@ -286,7 +288,6 @@ export default {
 			ctr_nature: this.resp.Ctr_nature,
 			signature: this.signature
 		};
-		console.log(content);
 		var today = new Date();
 		var dd = today.getDate();
 		var mm = today.getMonth()+1; 
@@ -304,7 +305,6 @@ export default {
 		today = dd+'-'+mm+'-'+yyyy+' '+hh+':'+ll;
 
 		axios.post(this.currIp+"/submit_vg", content).then((response) => {
-			console.log(response.data);
 			if (response.status == 200) {
 				this.date_enregistrement = today;
 			}
@@ -333,10 +333,9 @@ export default {
 			signature: this.signature,
 			tech_id: this.tech_id
 		};
-		console.log(content);
+
 		if(confirm("FINALISER LA VISITE. Vous allez envoyer les données au siège, vous ne pourrez plus accéder à cette VG.")){
 			axios.post(this.currIp+"/submit_vg", content).then((response) => {
-				console.log(response.data);
 				if (response.status == 200) {
 					this.$router.push('/');
 				}

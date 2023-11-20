@@ -87,7 +87,7 @@ export default {
   },
   methods: {
 	undo() {
-			this.$refs.signaturePad.undoSignature();
+			this.$refs.signaturePad.clearSignature();
 			this.save();
 	},
 	save() {
