@@ -82,17 +82,14 @@ export default {
 	
     axios.get(this.currIp+'/mission_vg?item_id='+item_id)
     .then((response) => {
-		console.log("j'ai la mission");
 		this.resp = response.data;
 		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code)
 		.then((response) => {
-			console.log("j'ai les prestas");
 			this.inter_option = response.data;
 			this.getFormData();
 		});
 		axios.get(this.currIp+'/get_compteurs?ctr_id='+this.resp.Ctr_code)
 		.then((response) => {
-			console.log("j'ai les compteurs");
 			let compteur_cache_current = false;
 			for (let compteur of response.data) {
 				if(cache) {
@@ -107,9 +104,9 @@ export default {
 				}
 				
 				if(!compteur_cache_current == false) {
-					console.log("depuis le cache");
+					//ne rien faire si les compteurs de la base sont déjà dans le cache
+					//pour mettre à jour les données, on peut supprimer ceux de la base qui seront repris depuis la base
 				} else {
-					console.log("depuis la base");
 					this.compteurs.push(
 						{
 							id: compteur.Cpt_id,
@@ -190,7 +187,6 @@ export default {
 				data[i-1] = savedData;
 				i = i + 1;
 			}
-			console.log("Remplis les apparts");
 			this.appartements = data;
 		}
 

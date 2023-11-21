@@ -8,7 +8,7 @@ import { get, keys, del, set, entries } from 'idb-keyval';
 
 
 let app = createApp(App)
-app.config.globalProperties.currIp = 'https://ns3359877.ip-37-187-97.eu'
+app.config.globalProperties.currIp = 'https://ns3203483.ip-37-187-96.eu'
 app.component("VueSignaturePad", VueSignaturePad);
 app.use(router).mount('#app')
 
@@ -20,7 +20,7 @@ async function checkDP() {
     } else {
         const sendGetRequest = async () => {
             try {
-                const response = await axios.get('https://ns3359877.ip-37-187-97.eu/my_missions?tech_id='+current_tech);
+                const response = await axios.get('https://ns3203483.ip-37-187-96.eu/my_missions?tech_id='+current_tech);
                 this.resp = response.data;
 
                 //del old tasks
