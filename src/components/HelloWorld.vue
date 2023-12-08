@@ -162,7 +162,7 @@ export default {
         </div>
     </li>
   </div>
-  <div class="version">v W1.2.8</div>
+  <div class="version">v W1.2.9</div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

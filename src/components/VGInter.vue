@@ -1,5 +1,6 @@
 <script>
 	import { set, get } from 'idb-keyval';
+	import axios from "axios";
 
 	export default {
 		name: 'VGInter',
@@ -54,6 +55,14 @@
 			this.vg_occ = item_id;
 			this.vg_id = this.$route.params.id;
 			let cache = await get('VG-'+this.vg_id+'-'+this.vg_occ);
+			let vg_info = await get('VG-'+this.vg_id);
+			//à voir pour hors-co
+			this.ctr_code = vg_info.resp.Ctr_code;
+			axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.ctr_code)
+			.then((response) => {
+				this.inter_option = response.data;
+				this.getFormData();
+			});
 
 			//get signature if exist
 			if(cache !== undefined 
@@ -98,9 +107,6 @@
 			},
 			async getFormData() {
 				let savedData = await get('VG-'+this.vg_id+'-'+this.vg_occ);
-				let vg_info = await get('VG-'+this.vg_id);
-				this.inter_option = vg_info.inter_option;
-				console.log(vg_info);
 				this.appartements = savedData;
 			},
 			addItem() {
