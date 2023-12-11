@@ -342,7 +342,10 @@ export default {
 		margin: 0 !important;
 		font-size: 15px;
 		color: black;
-	}	
+	}
+	.invis {
+		display: none;
+	}
 	.signaturePad {
 		border: 1px solid black;
 	}

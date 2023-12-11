@@ -7,6 +7,7 @@ export default {
   data() {
     return {
       isShowGreen: true,
+      isShowPresta: false,
       currIp: this.currIp,
       resp: '',
       vg_id: '',
@@ -348,6 +349,26 @@ export default {
 		<div class="header_headline">
 			<a href="/"><img class="return_button" src="../assets/fleche2_blanc.svg"></a>
 			<img src="../assets/logo-gereco-2.svg">
+			<div style="background: white; padding: 2px; border: 1px solid black; position: absolute; right: 20px; top: 20px;" @click="isShowPresta = true">Prestations</div>
+			<div style="padding-bottom: 20px; width: 100%; height: 600px; overflow-y: scroll; background: white; position: absolute; top: 0px;" :class="{'invis': !isShowPresta}">
+				<h2>RA</h2>
+				<div v-for="key in inter_option['presta_fam1']"  :key="key" :value="key.id">
+					{{key.libelle}}
+				</div>
+				<h2>ROB</h2>
+				<div v-for="key in inter_option['presta_fam3']"  :key="key" :value="key.id">
+					{{key.libelle}}
+				</div>
+				<h2>WC</h2>
+				<div v-for="key in inter_option['presta_fam4']"  :key="key" :value="key.id">
+					{{key.libelle}}
+				</div>
+				<h2>Parties communes</h2>
+				<div v-for="key in inter_option['presta_fam5']"  :key="key" :value="key.id">
+					{{key.libelle}}
+				</div>
+				<div style="background: white; padding: 2px; font-size: 25px; position: absolute; top: 25px; right: 25px;" @click="isShowPresta = false">X</div>
+			</div>
 		</div>
 		<div style="font-size: 19px; color:white; font-weight: bold;">VISITE GÉNÉRALE</div>
 		<div style="font-size: 14px;color:white; font-weight: bold; margin-bottom: 20px;">{{ resp.Evt_dtDebut }}</div>
@@ -447,6 +468,7 @@ export default {
 		<div class="form_bloc_title">Appartements <div class="filter_button" @click="isShowGreen = !isShowGreen">Filtrer</div></div>
 		<div class="form_bloc_content table_container">
 			<div>
+				<div @click="addItemAppartements" class="line_adder" style="margin-bottom: 10px;">+</div>
 				<table>
 					<tr>
 						<th>N°</th>
@@ -478,7 +500,6 @@ export default {
 						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
-				<div @click="addItemAppartements" class="line_adder">+</div>
 			</div>
 		</div>
 	</div>
