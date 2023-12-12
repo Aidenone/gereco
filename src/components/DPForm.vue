@@ -401,9 +401,17 @@ export default {
 										<option></option>
 										<option>SDB</option>
 										<option>WC</option>
+										<option>WCLAVEMAIN</option>
 										<option>Cuis.</option>
-										<option>Ch.</option>
+										<option>Ch</option>
 										<option>SD</option>
+										<option>SDLAVABO</option>
+										<option>SDDOUCHE</option>
+										<option>SDBLAVABO</option>
+										<option>SDBBAIGN</option>
+										<option>SDBBIDET</option>
+										<option>VO</option>
+										<option>Part.Comm.</option>
 									</select>
 								</td>
 								<td>
