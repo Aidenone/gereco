@@ -20,7 +20,7 @@ export default {
       appartements: [
 		//ajouter tous les champs -> identiques que VGInter
         {
-			num: '',
+			num: '1',
 			bat: '',
 			nom: '',
 			escalier: '',
@@ -372,7 +372,7 @@ export default {
 
 		<label style="font-weight: bold;">Visa Gardien ou Représentant</label>
 		<div style="margin-bottom: 40px;">
-			<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+			<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" style="width: 70%; margin: auto;" :options="{ onBegin, onEnd }" />
 			<div>
 				<div @click="undo">Effacer</div>
 			</div>

@@ -227,7 +227,6 @@
 							<td>
 								<select style="width: 50px;" v-model="item['inter_lieu']" @change="saveFormData(index)">
 									<option></option>
-									<option>SDB</option>
 									<option>WC</option>
 									<option>WCLAVEMAIN</option>
 									<option>Cuis.</option>
@@ -235,8 +234,10 @@
 									<option>SD</option>
 									<option>SDLAVABO</option>
 									<option>SDDOUCHE</option>
+									<option>SDB</option>
 									<option>SDBLAVABO</option>
 									<option>SDBBAIGN</option>
+									<option>SDBDOUCHE</option>
 									<option>SDBBIDET</option>
 									<option>VO</option>
 									<option>Part.Comm.</option>
@@ -299,7 +300,7 @@
 			</div>
 			<label style="">Visa Gardien ou Représentant</label>
 			<div>
-				<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+				<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" style="width: 70%; margin: auto;" :options="{ onBegin, onEnd }" />
 				<div style="display: flex; justify-content: center;">
 					<div @click="undo">Effacer</div>
 				</div>

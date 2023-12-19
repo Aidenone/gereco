@@ -25,7 +25,7 @@ export default {
       ],
       appartements: [
         {
-			num: '',
+			num: '1',
 			bat: '',
 			nom: '',
 			escalier: '',
@@ -577,7 +577,7 @@ export default {
 		
 		<label style="">Visa Gardien ou Représentant</label>
 		<div>
-			<VueSignaturePad @change="save" height="200px" class="signaturePad" ref="signaturePad" :options="{ onBegin, onEnd }" />
+			<VueSignaturePad @change="save" height="200px" class="signaturePad" style="width: 70%; margin: auto;" ref="signaturePad" :options="{ onBegin, onEnd }" />
 			<div>
 				<div @click="undo">Effacer</div>
 			</div>
