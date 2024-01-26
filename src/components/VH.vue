@@ -150,6 +150,7 @@ export default {
 			this.compte_rendu = savedData.compte_rendu;
 			this.signature = savedData.signature;
 			this.temps_passe = savedData.temps_passe;
+			this.checkbox_devis = savedData.checkbox_devis;
 		}
 		this.saveFormData();
     },
