@@ -178,6 +178,7 @@ export default {
 				},
 				remarque_inter: '',
 				statut: 'Clôturé',
+				checkbox_devis: false,
 				remarque: '',
 				inter: [
 					{
