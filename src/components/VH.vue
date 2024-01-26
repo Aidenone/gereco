@@ -150,7 +150,6 @@ export default {
 			this.compte_rendu = savedData.compte_rendu;
 			this.signature = savedData.signature;
 			this.temps_passe = savedData.temps_passe;
-			this.checkbox_devis = savedData.checkbox_devis;
 		}
 		this.saveFormData();
     },
@@ -167,16 +166,17 @@ export default {
 		this.appartements.unshift(
 			{
 				num: Number(curr_num) + 1,
-				bat: current.bat,
+				bat: '',
 				nom: '',
-				escalier: current.escalier,
-				etage: current.etage,
+				escalier: '',
+				etage: '',
 				porte: '',
-				suivi: '',
+				objet: '',
 				signature: {
 					image: '',
 					data_arr: {}
 				},
+				temps_passe: '0',
 				remarque_inter: '',
 				statut: 'Clôturé',
 				checkbox_devis: false,
@@ -189,7 +189,6 @@ export default {
 						inter_qty: '1',
 					},
 				],
-				temps_passe: '0',
 				verif_ra: false,
 				verif_rob: false,
 				verif_wc: false,
