@@ -1,5 +1,5 @@
 <script>
-import { set, get, del } from 'idb-keyval';
+import { del, set, get } from 'idb-keyval';
 import axios from "axios";
 
 export default {
@@ -57,6 +57,7 @@ export default {
     };
   },
   async mounted() {
+	console.log("start");
     let uri = window.location.href.split('?');
 	let vars = uri[1].split('&');
 	let getVars = {};
@@ -105,8 +106,9 @@ export default {
 				}
 				
 				if(!compteur_cache_current == false) {
+					console.log("compteur dans le cache");
 					//ne rien faire si les compteurs de la base sont déjà dans le cache
-					//pour mettre à jour les données, on peut supprimer ceux de la base qui seront repris depuis la base
+					//pour mettre à jour les données, on peut supprimer ceux dans le tableau, ils seront repris depuis la base
 				} else {
 					this.compteurs.push(
 						{
@@ -121,7 +123,6 @@ export default {
 					);
 				}
 			}
-			this.saveFormData();
 		});
 	});
 	this.getFormData();
@@ -132,8 +133,8 @@ export default {
   },
   methods: {
 	undo() {
-			this.$refs.signaturePad.undoSignature();
-			this.save();
+		this.$refs.signaturePad.undoSignature();
+		this.save();
 	},
 	save() {
 		const { data } = this.$refs.signaturePad.saveSignature();
@@ -149,34 +150,41 @@ export default {
 	onEnd() {
 		this.save();
 	},
-    async saveFormData(occ) {
-		occ = occ + 1;
-
+    async saveFormData(occ, deletion) {
 		//Data from table + form
 		var result = this.$data;
 		var test = JSON.stringify(result);
 		test = JSON.parse(test);
-		if (isNaN(occ)) {
-			let i = 1;
-			// Mais si on supprimme vg-xxx-2 du coup les while passent pas au 3 ?
-			// Ici sans internet ca sauvegarde pas les apparts
+		occ = occ + 1;
 
-			while(await get('VG-'+this.vg_id+'-'+i)) {
-				if(test.appartements[i-1] === undefined)
-					await del('VG-'+this.vg_id+'-'+i);
-				i = i + 1;
+		if (!isNaN(occ)) {
+			//save ou ajoute une occurence
+			if(!deletion) {
+				occ = test.appartements.length - occ + 1;
+				console.log(occ);
+				await set('VG-'+this.vg_id+'-'+occ, test.appartements[occ - 1]);
 			}
+			//supprime une occurence et remet à jour l'incrementation
+			else {
+				let i = 1;
 
-			i = 1;
+				while(await get('VG-'+this.vg_id+'-'+i)) {
+					//Si appart dans le cache mais pas dans le tableau -> DEL
+					if(test.appartements[i-1] === undefined)
+						await del('VG-'+this.vg_id+'-'+i);
+					i = i + 1;
+				}
 
-			while(test.appartements[i-1]) {
-				await set('VG-'+this.vg_id+'-'+i, test.appartements[i-1]);
-				i = i + 1;
+				i = 1;
+				//on remet toutes les occurences à la bonne incrementation
+				while(test.appartements[i-1]) {
+					await set('VG-'+this.vg_id+'-'+i, test.appartements[i-1]);
+					i = i + 1;
+				}
 			}
-
-		} else {
-			await set('VG-'+this.vg_id+'-'+occ, test.appartements[occ-1]);
 		}
+
+		//sauvegarde des infos de la vg globale
 		await set('VG-'+this.vg_id, test);
     },
     async getFormData() {
@@ -194,7 +202,8 @@ export default {
 		if(await get('VG-'+this.vg_id) !== undefined) {
 			let savedData = await get('VG-'+this.vg_id);
 			this.compte_rendu = savedData.compte_rendu;
-			this.compteurs = savedData.compteurs;
+			if(this.compteurs.length == 0)
+				this.compteurs = savedData.compteurs;
 			this.signature = savedData.signature;
 			this.temps_passe = savedData.temps_passe;
 			this.date_enregistrement = savedData.date_enregistrement,
@@ -203,10 +212,10 @@ export default {
 		this.saveFormData();
     },
     addItemAppartements() {
-		var current = this.appartements[0];
+		var current = this.appartements[this.appartements.length - 1];
 		var curr_num = current.num;
 
-		this.appartements.unshift( 
+		this.appartements.push( 
 			{
 				num: Number(curr_num) + 1,
 				bat: current.bat,
@@ -238,7 +247,7 @@ export default {
 			}
 		);
 
-		this.saveFormData();
+		this.saveFormData(0, false);
     },
     addItemCompteurs() {
 		//mettre type en arg
@@ -260,8 +269,9 @@ export default {
 	},
 	removeLine(index) {
 		if(confirm("Voulez-vous supprimer cette ligne ?")){
-			this.appartements.splice(index, 1);
-			this.saveFormData();
+			let r_occ = this.appartements.length - index - 1;
+			this.appartements.splice(r_occ, 1);
+			this.saveFormData(index, true);
 		}
 	},
 	removeCompteur(index) {
@@ -479,7 +489,7 @@ export default {
 						<th>Suivi</th>
 						<th>Modif</th>
 					</tr>
-					<tr v-for="(item, index) in appartements" :key="index" :class="{ 'green': item.suivi != 'Abs.' && item.suivi != '', 'invis': item.suivi != 'Abs.' && item.suivi != '' && !isShowGreen}">
+					<tr v-for="(item, index) in appartements.slice().reverse()" :key="index" :class="{ 'green': item.suivi != 'Abs.' && item.suivi != '', 'invis': item.suivi != 'Abs.' && item.suivi != '' && !isShowGreen}">
 						<td>{{item.num}}</td>
 						<td><input style="width: 25px;" type="text" v-model="item.bat" @input="saveFormData(index)" /></td>
 						<td><input style="width: 25px;" type="text" v-model="item.escalier" @input="saveFormData(index)" /></td>

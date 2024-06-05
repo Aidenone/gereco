@@ -13,7 +13,6 @@ app.component("VueSignaturePad", VueSignaturePad);
 app.use(router).mount('#app')
 
 async function checkDP() {
-
 	let current_tech = await get('current_tech');
     if (typeof current_tech == 'undefined') {
         console.log('No tech ID. Please Log in.');
