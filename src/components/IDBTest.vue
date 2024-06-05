@@ -13,6 +13,7 @@ export default {
       vg_id: '',
       tech_id: '',
       date_enregistrement: '',
+      enregistrement_enable: true,
       compte_rendu: '',
       remarque: '',
       temps_passe: '',
@@ -280,7 +281,9 @@ export default {
 			this.saveFormData();
 		}
 	},
-	enregistrer() {
+	async enregistrer() {
+		this.enregistrement_enable = false;
+		console.log("enregistrement disable");
 		const content = {
 			appartements: this.appartements,
 			compteurs: [],
@@ -308,12 +311,15 @@ export default {
 
 		today = dd+'-'+mm+'-'+yyyy+' '+hh+':'+ll;
 
-		axios.post(this.currIp+"/submit_vg", content).then((response) => {
+		await axios.post(this.currIp+"/submit_vg", content).then((response) => {
 			console.log(response.data);
 			if (response.status == 200) {
 				this.date_enregistrement = today;
 				this.saveFormData();
 			}
+
+			this.enregistrement_enable = true;
+			console.log("enregistrement enable");
 		});
 	},
 	submitForm() {
@@ -513,7 +519,7 @@ export default {
 			</div>
 		</div>
 	</div>
-	<div class="save_button" style="margin-top: 20px;" @click="enregistrer">ENREGISTRER</div>
+	<button class="save_button" style="margin-top: 20px;" @click="enregistrer" :disabled="enregistrement_enable == false">ENREGISTRER</button>
 	<div>Dernier enregistrement : {{date_enregistrement}}</div>
 
 	<div class="form_bloc compteurs" style="margin-top: 40px;">
@@ -655,9 +661,13 @@ export default {
 		border: 1px solid black;
 		width: fit-content;
 		margin: auto;
-		margin-bottom: 6px;
-		padding: 6px;
+		margin-bottom: 7px;
+		padding: 9px;
 		background: #a7e2fc;
+	}
+
+	.save_button:disabled {
+		background: gray;
 	}
     .form_bloc.intervention .form_bloc_title {
 		color: black !important;
