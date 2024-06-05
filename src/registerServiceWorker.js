@@ -14,8 +14,8 @@ if (process.env.NODE_ENV === 'production') {
        Notification.requestPermission().then((permission) => {
               console.log(permission);
               if (permission === "granted") {
-                  const notification = new Notification("Test", { body: "test notif" });
-                  console.log(notification);
+                  // const notification = new Notification("Test", { body: "test notif" });
+                  // console.log(notification);
               }
           });
       }
