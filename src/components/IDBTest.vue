@@ -191,6 +191,41 @@ export default {
     async getFormData() {
 		let i = 1;
 		let data = [];
+
+		if(await get('VG-'+this.vg_id+'-1') === undefined) {
+			data[0] = {
+				num: 1,
+				bat: '',
+				nom: '',
+				escalier: '',
+				etage: '',
+				porte: '',
+				suivi: '',
+				signature: {
+					image: '',
+					data_arr: {}
+				},
+				remarque_inter: '',
+				statut: 'Clôturé',
+				checkbox_devis: false,
+				remarque: '',
+				inter: [
+					{
+						inter_type: '',
+						inter_lieu: '',
+						inter_presta: '',
+						inter_qty: '1',
+					},
+				],
+				verif_ra: false,
+				verif_rob: false,
+				verif_wc: false,
+				verif_gen: false
+			};
+			
+			i = i + 1;
+		}
+
 		if(await get('VG-'+this.vg_id+'-'+i) !== undefined) {
 			while(await get('VG-'+this.vg_id+'-'+i) !== undefined) {
 				let savedData = await get('VG-'+this.vg_id+'-'+i);
@@ -512,7 +547,7 @@ export default {
 								<option value="Avisé">Avisé</option>
 							</select>
 						</td>
-						<td style="text-align: center;" ><router-link v-if="this.vg_id && item.suivi != 'Abs.' && item.suivi != 'Abs. x2' && item.suivi != 'RO' && item.suivi != 'Avisé' " :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: index+1}}">--></router-link></td>
+						<td style="text-align: center;" ><router-link v-if="this.vg_id && item.suivi != 'Abs.' && item.suivi != 'Abs. x2' && item.suivi != 'RO' && item.suivi != 'Avisé' " :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: item.num}}">--></router-link></td>
 						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
