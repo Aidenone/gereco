@@ -57,8 +57,9 @@
 			let cache = await get('VG-'+this.vg_id+'-'+this.vg_occ);
 			let vg_info = await get('VG-'+this.vg_id);
 			//à voir pour hors-co
-			this.ctr_code = vg_info.resp.Ctr_code;
-			axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.ctr_code)
+			this.ctr_code = await vg_info.resp.Ctr_code;
+			
+			await axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.ctr_code)
 			.then((response) => {
 				this.inter_option = response.data;
 				this.getFormData();

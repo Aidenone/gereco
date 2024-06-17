@@ -162,7 +162,6 @@ export default {
 			//save ou ajoute une occurence
 			if(!deletion) {
 				occ = test.appartements.length - occ + 1;
-				console.log(occ);
 				await set('VG-'+this.vg_id+'-'+occ, test.appartements[occ - 1]);
 			}
 			//supprime une occurence et remet à jour l'incrementation
@@ -193,6 +192,7 @@ export default {
 		let data = [];
 
 		if(await get('VG-'+this.vg_id+'-1') === undefined) {
+			console.log("pas de VG 1 encore");
 			data[0] = {
 				num: 1,
 				bat: '',
@@ -222,7 +222,7 @@ export default {
 				verif_wc: false,
 				verif_gen: false
 			};
-			
+
 			i = i + 1;
 		}
 
@@ -245,7 +245,7 @@ export default {
 			this.date_enregistrement = savedData.date_enregistrement,
 			this.remarque = savedData.remarque;
 		}
-		this.saveFormData();
+		this.saveFormData(0, false);
     },
     addItemAppartements() {
 		var current = this.appartements[this.appartements.length - 1];
@@ -547,7 +547,7 @@ export default {
 								<option value="Avisé">Avisé</option>
 							</select>
 						</td>
-						<td style="text-align: center;" ><router-link v-if="this.vg_id && item.suivi != 'Abs.' && item.suivi != 'Abs. x2' && item.suivi != 'RO' && item.suivi != 'Avisé' " :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: item.num}}">--></router-link></td>
+						<td style="text-align: center;" ><router-link v-if="this.vg_id && item.suivi != 'Abs.' && item.suivi != 'Abs. x2' && item.suivi != 'RO' && item.suivi != 'Avisé' " :to="{ name: 'VGInter', params: { id: vg_id }, query: {vgocc: appartements.length - index}}">--></router-link></td>
 						<div @click="removeLine(index)" class="line_remover"> x </div>
 					</tr>
 				</table>
