@@ -83,7 +83,7 @@ export default {
 		this.$refs.signaturePad.fromData(cache["signature"]["data_arr"]);
 	}
 	
-    axios.get(this.currIp+'/mission_vg?item_id='+item_id)
+    await axios.get(this.currIp+'/mission_vg?item_id='+item_id)
     .then((response) => {
 		this.resp = response.data;
 		axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.resp.Ctr_code)
