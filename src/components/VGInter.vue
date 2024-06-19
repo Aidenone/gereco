@@ -54,15 +54,18 @@
 			let item_id = getVars.vgocc;
 			this.vg_occ = item_id;
 			this.vg_id = this.$route.params.id;
+
+			this.getFormData();
+			
 			let cache = await get('VG-'+this.vg_id+'-'+this.vg_occ);
 			let vg_info = await get('VG-'+this.vg_id);
 			//à voir pour hors-co
 			this.ctr_code = await vg_info.resp.Ctr_code;
-			
+
 			await axios.get(this.currIp+'/get_contrat_presta?ctr_id='+this.ctr_code)
 			.then((response) => {
 				this.inter_option = response.data;
-				this.getFormData();
+				// this.getFormData();
 			});
 
 			//get signature if exist
@@ -101,7 +104,6 @@
 			async saveFormData() {
 				//Data from table + form
 				var result = this.$data;
-				//To avoid cloning error
 				result = JSON.stringify(result);
 				var test = JSON.parse(result);
 				await set('VG-'+this.vg_id+'-'+this.vg_occ, test.appartements);
