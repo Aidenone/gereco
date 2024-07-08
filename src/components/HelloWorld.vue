@@ -1,6 +1,6 @@
 <script>
 import axios from "axios"
-import { get, clear, set, del, keys, entries } from 'idb-keyval';
+import { get, set, del, keys, entries } from 'idb-keyval';
 
 export default {
     name: 'HelloWorld',
@@ -13,8 +13,8 @@ export default {
     },
     methods: {
         logout() {
-            if(confirm("Êtes-vous sûr de vouloir vous déconnecter ? Vous perdrez votre avancement sur les tâches en cours.")){
-                clear();
+            if(confirm("Êtes-vous sûr de vouloir vous déconnecter ?")){
+                del("current_tech");
                 this.$router.push('/login/');
             }
         },
@@ -43,9 +43,6 @@ export default {
           }
 
           console.log(Notification.permission);
-
-          // At last, if the user has denied notifications, and you
-          // want to be respectful there is no need to bother them anymore.
         }
     },
     async mounted () {

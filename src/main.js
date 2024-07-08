@@ -45,7 +45,7 @@ async function checkDP() {
 						navigator.serviceWorker.register('service-worker.js');
 						if (Notification.permission === "granted") {
 							navigator.serviceWorker.ready.then(function(registration) {
-								registration.showNotification('Vous avez une nouvelle DP');
+								registration.showNotification('Vous avez une nouvelle DP : ' + id);
 							});
 						}
                     }

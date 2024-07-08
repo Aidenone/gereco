@@ -1,6 +1,6 @@
 <script>
 import axios from "axios"
-import { set } from 'idb-keyval';
+import { set, clear } from 'idb-keyval';
 
 export default {
     name: 'LoginForm',
@@ -28,7 +28,13 @@ export default {
 					this.erreur = true;
 				}
 			});
-		}
+		},
+        deleteData() {
+            if(confirm("Voulez-vous supprimer toutes les données de l'application, vos tâches en cours ne seront plus sauvegardées ?")){
+                clear();
+                this.$router.push('/');
+            }
+        }
 	}
 };
 
@@ -46,11 +52,18 @@ export default {
 			<input type="password" name="password" v-model="password">
 			<input class="input_button" type="submit" value="VALIDER">
 		</form>
+
+        <div @click="deleteData()" class="delete-button">Effacer les données</div>
 	</div>
 </template>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style>
+    .delete-button {
+        text-decoration: underline;
+        margin-top: 40px;
+        cursor: pointer;
+    }
 	.login form {
 		display: flex;
 		flex-direction: column;
